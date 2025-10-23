@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>野百灵用餐反馈</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 50%, #ff99ac 100%);
+            min-height: 100vh;
+            padding: 20px;
+            animation: gradientShift 15s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #ff6a88, #ff9a56);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .welcome-text {
+            color: #666;
+            line-height: 1.9;
+            margin-bottom: 35px;
+            text-align: center;
+            font-size: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff5f7 0%, #fff9e6 100%);
+            border-radius: 16px;
+            border-left: 4px solid #ff9a56;
+            box-shadow: 0 4px 15px rgba(255, 154, 86, 0.1);
+        }
+
+        .feedback-section {
+            margin-bottom: 28px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+        }
+
+        .feedback-section:hover {
+            box-shadow: 0 8px 30px rgba(255, 154, 86, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-size: 19px;
+            color: #333;
+            margin-bottom: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: "";
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ff9a56, #ff6a88);
+            border-radius: 10px;
+            text-align: center;
+            line-height: 32px;
+            margin-right: 12px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(255, 154, 86, 0.3);
+        }
+
+        .section-title[data-icon="🍽️"]::before { content: "🍽️"; background: none; box-shadow: none; }
+        .section-title[data-icon="👨‍🍳"]::before { content: "👨‍🍳"; background: none; box-shadow: none; }
+        .section-title[data-icon="🏠"]::before { content: "🏠"; background: none; box-shadow: none; }
+        .section-title[data-icon="💭"]::before { content: "💭"; background: none; box-shadow: none; }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item, .sub-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #fafafa;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover, .sub-checkbox-item:hover {
+            background: linear-gradient(135deg, #fff5f7 0%, #fff9e6 100%);
+            transform: translateX(5px);
+        }
+
+        .checkbox-item input[type="checkbox"],
+        .sub-checkbox-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #ff6a88;
+        }
+
+        .checkbox-item label,
+        .sub-checkbox-item label {
+            font-size: 16px;
+            color: #555;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .sub-checkbox-group {
+            margin-left: 15px;
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-left: 15px;
+            border-left: 3px solid #ffe0e6;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 130px;
+            padding: 18px;
+            border: 2px solid #f0f0f0;
+            border-radius: 14px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #ff9a56;
+            background: white;
+            box-shadow: 0 4px 20px rgba(255, 154, 86, 0.15);
+        }
+
+        textarea::placeholder {
+            color: #aaa;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff6a88 0%, #ff9a56 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 106, 136, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 106, 136, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .footer-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 30px 25px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .welcome-text {
+                font-size: 14px;
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <div class="logo-icon">🌾</div>
+        </div>
+
+        <h1>野百灵用餐反馈</h1>
+
+        <div class="welcome-text">
+            亲爱的顾客，感谢您选择野百灵用餐，您的良好用餐体验是我们的追求目标，请您选择有待提升的方面并给出建议，我们会认真对待您反馈并加强优化。
+        </div>
+
+        <form id="feedbackForm">
+            <div class="feedback-section">
+                <div class="section-title" data-icon="🍽️">产品</div>
+                <div class="sub-checkbox-group">
+                    <div class="sub-checkbox-item">
+                        <input type="checkbox" id="taste" name="product" value="菜品口味">
+                        <label for="taste">菜品口味</label>
+                    </div>
+                    <div class="sub-checkbox-item">
+                        <input type="checkbox" id="portion" name="product" value="分量">
+                        <label for="portion">分量</label>
+                    </div>
+                    <div class="sub-checkbox-item">
+                        <input type="checkbox" id="price" name="product" value="价格">
+                        <label for="price">价格</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback-section">
+                <div class="section-title" data-icon="👨‍🍳">服务</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="service" name="category" value="服务">
+                        <label for="service">需要改进服务</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback-section">
+                <div class="section-title" data-icon="🏠">环境</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="environment" name="category" value="环境">
+                        <label for="environment">需要改进环境</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback-section">
+                <div class="section-title" data-icon="💭">其它建议</div>
+                <textarea id="otherSuggestions" name="other" placeholder="请在此处写下您的宝贵建议..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">提交反馈</button>
+        </form>
+    </div>
+
+    <div class="footer-text">
+        野百灵餐厅 · 用心服务每一位顾客
+    </div>
+
+    <script>
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const productFeedback = [];
+            document.querySelectorAll('input[name="product"]:checked').forEach(item => {
+                productFeedback.push(item.value);
+            });
+
+            const categoryFeedback = [];
+            document.querySelectorAll('input[name="category"]:checked').forEach(item => {
+                categoryFeedback.push(item.value);
+            });
+
+            const otherSuggestions = document.getElementById('otherSuggestions').value;
+
+            console.log('产品反馈:', productFeedback);
+            console.log('类别反馈:', categoryFeedback);
+            console.log('其他建议:', otherSuggestions);
+
+            alert('感谢您的宝贵反馈！我们会认真对待并持续改进。');
+
+            this.reset();
+        });
+    </script>
+</body>
+</html>
