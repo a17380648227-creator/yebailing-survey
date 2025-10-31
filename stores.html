@@ -37,7 +37,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 12px;
-            text-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
         }
 
         .page-subtitle {
@@ -50,24 +49,8 @@
             backdrop-filter: blur(20px);
             border-radius: 24px;
             padding: 40px;
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(147, 197, 253, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(147, 197, 253, 0.2);
             margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 197, 253, 0.03) 100%);
-            pointer-events: none;
         }
 
         .card-title {
@@ -80,12 +63,8 @@
             gap: 12px;
         }
 
-        .card-title-icon {
-            font-size: 28px;
-        }
-
         .form-section {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .form-label {
@@ -100,7 +79,6 @@
             width: 100%;
             padding: 16px 20px;
             background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(10px);
             border: 2px solid rgba(147, 197, 253, 0.3);
             border-radius: 16px;
             font-size: 16px;
@@ -119,17 +97,6 @@
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
-        .form-hint {
-            margin-top: 12px;
-            padding: 15px 20px;
-            background: rgba(251, 191, 36, 0.1);
-            border-left: 4px solid #fbbf24;
-            border-radius: 12px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-        }
-
         .btn {
             padding: 16px 32px;
             border: none;
@@ -137,31 +104,11 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
+            transition: all 0.3s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
@@ -175,27 +122,22 @@
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
+            padding: 10px 20px;
+            font-size: 14px;
         }
 
         .store-item {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
             border: 2px solid rgba(147, 197, 253, 0.2);
             border-radius: 20px;
             padding: 30px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             transition: all 0.3s;
         }
 
         .store-item:hover {
             border-color: #3b82f6;
             box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
-            transform: translateY(-2px);
         }
 
         .store-header {
@@ -211,40 +153,88 @@
             color: white;
         }
 
-        .store-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+        .table-section {
+            margin-top: 20px;
         }
 
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-        }
-
-        .info-icon {
-            font-size: 20px;
-        }
-
-        .table-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .table-tag {
-            padding: 6px 14px;
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            border-radius: 8px;
-            font-size: 13px;
-            color: #93c5fd;
+        .table-section-title {
+            font-size: 16px;
             font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .table-item {
+            background: rgba(59, 130, 246, 0.15);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .table-item:hover {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: #3b82f6;
+        }
+
+        .table-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .btn-delete-table {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-delete-table:hover {
+            background: #ef4444;
+        }
+
+        .add-table-section {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-top: 15px;
+        }
+
+        .add-table-input {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .btn-add-table {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add-table:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
         }
 
         .empty-state {
@@ -257,22 +247,6 @@
             font-size: 80px;
             margin-bottom: 20px;
             opacity: 0.5;
-        }
-
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 32px;
-            }
-
-            .card {
-                padding: 25px;
-            }
-
-            .store-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
         }
     </style>
 </head>
@@ -289,26 +263,13 @@
         <!-- 添加门店 -->
         <div class="card">
             <h2 class="card-title">
-                <span class="card-title-icon">➕</span>
+                <span>➕</span>
                 添加新门店
             </h2>
 
             <div class="form-section">
                 <label class="form-label">门店名称</label>
-                <input type="text" id="storeName" class="form-input" placeholder="例如：朝阳店、三里屯店">
-            </div>
-
-            <div class="form-section">
-                <label class="form-label">桌位编号（自定义）</label>
-                <input type="text" id="tableNumbers" class="form-input" placeholder="例如：A1,A2,A3,B1,B2 或 1号桌,2号桌,3号桌">
-                <div class="form-hint">
-                    💡 <strong>灵活编号：</strong>您可以按照自己的习惯输入桌号<br>
-                    • 用逗号分隔每个桌号<br>
-                    • 支持字母+数字组合（A1, A2, B1）<br>
-                    • 支持中文（1号桌, 2号桌, 雅座1）<br>
-                    • 支持纯数字（1, 2, 3）<br>
-                    • 示例：<code style="color:#fbbf24">A1,A2,A3,B1,B2,VIP1,VIP2</code>
-                </div>
+                <input type="text" id="newStoreName" class="form-input" placeholder="例如：朝阳店、三里屯店">
             </div>
 
             <button class="btn btn-primary" onclick="addStore()">✨ 添加门店</button>
@@ -317,7 +278,7 @@
         <!-- 门店列表 -->
         <div class="card">
             <h2 class="card-title">
-                <span class="card-title-icon">📋</span>
+                <span>📋</span>
                 门店列表
             </h2>
             <div id="storesList"></div>
@@ -340,30 +301,46 @@
                 return;
             }
 
-            container.innerHTML = stores.map((store, index) => {
-                const tableCount = store.tables.length;
+            container.innerHTML = stores.map((store, storeIndex) => {
+                const tableCount = store.tables ? store.tables.length : 0;
                 const createdDate = new Date(store.createdAt).toLocaleString('zh-CN');
 
                 return `
                     <div class="store-item">
                         <div class="store-header">
                             <div class="store-name">${store.name}</div>
-                            <button class="btn btn-danger" onclick="deleteStore(${index})">🗑️ 删除</button>
+                            <button class="btn btn-danger" onclick="deleteStore(${storeIndex})">🗑️ 删除门店</button>
                         </div>
-                        <div class="store-info">
-                            <div class="info-item">
-                                <span class="info-icon">🪑</span>
-                                <span>${tableCount} 张桌子</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-icon">📅</span>
-                                <span>${createdDate}</span>
+
+                        <div class="table-section">
+                            <div class="table-section-title">📋 桌位列表（${tableCount} 张）</div>
+                            ${store.tables && store.tables.length > 0 ? `
+                                <div class="table-grid">
+                                    ${store.tables.map((table, tableIndex) => `
+                                        <div class="table-item">
+                                            <span class="table-name">${table}</span>
+                                            <button class="btn-delete-table" onclick="deleteTable(${storeIndex}, ${tableIndex})">✕</button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : '<div style="color: rgba(255,255,255,0.5); margin-bottom: 15px;">暂无桌位</div>'}
+
+                            <div class="add-table-section">
+                                <div class="add-table-input">
+                                    <input type="text"
+                                           id="newTable_${storeIndex}"
+                                           class="form-input"
+                                           placeholder="输入桌号，如：A1, VIP1"
+                                           style="padding: 12px 16px;">
+                                </div>
+                                <button class="btn-add-table" onclick="addTable(${storeIndex})">
+                                    ➕ 添加桌号
+                                </button>
                             </div>
                         </div>
-                        <div class="table-tags">
-                            ${store.tables.map(table => `
-                                <span class="table-tag">${table}</span>
-                            `).join('')}
+
+                        <div style="margin-top: 15px; font-size: 13px; color: rgba(255,255,255,0.5);">
+                            创建时间：${createdDate}
                         </div>
                     </div>
                 `;
@@ -372,26 +349,10 @@
 
         // 添加门店
         function addStore() {
-            const name = document.getElementById('storeName').value.trim();
-            const tableNumbersInput = document.getElementById('tableNumbers').value.trim();
+            const name = document.getElementById('newStoreName').value.trim();
 
             if (!name) {
                 alert('❌ 请输入门店名称');
-                return;
-            }
-
-            if (!tableNumbersInput) {
-                alert('❌ 请输入桌位编号');
-                return;
-            }
-
-            // 解析桌号（用逗号分隔，去除空格）
-            const tables = tableNumbersInput.split(',')
-                .map(t => t.trim())
-                .filter(t => t.length > 0);
-
-            if (tables.length === 0) {
-                alert('❌ 请输入至少一个桌号');
                 return;
             }
 
@@ -400,35 +361,79 @@
             const newStore = {
                 id: Date.now(),
                 name: name,
-                tables: tables,
+                tables: [],
                 createdAt: new Date().toISOString()
             };
 
             stores.push(newStore);
             localStorage.setItem('ybl_stores', JSON.stringify(stores));
 
-            alert(`✅ 成功添加门店：${name}\n📋 桌位：${tables.join(', ')}（共${tables.length}张）`);
+            alert(`✅ 成功添加门店：${name}`);
 
-            // 清空表单
-            document.getElementById('storeName').value = '';
-            document.getElementById('tableNumbers').value = '';
+            document.getElementById('newStoreName').value = '';
+            loadStores();
+        }
 
-            // 刷新列表
+        // 添加桌号
+        function addTable(storeIndex) {
+            const inputId = `newTable_${storeIndex}`;
+            const tableName = document.getElementById(inputId).value.trim();
+
+            if (!tableName) {
+                alert('❌ 请输入桌号');
+                return;
+            }
+
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+
+            if (!stores[storeIndex].tables) {
+                stores[storeIndex].tables = [];
+            }
+
+            // 检查是否重复
+            if (stores[storeIndex].tables.includes(tableName)) {
+                alert('❌ 该桌号已存在');
+                return;
+            }
+
+            stores[storeIndex].tables.push(tableName);
+            localStorage.setItem('ybl_stores', JSON.stringify(stores));
+
+            alert(`✅ 成功添加桌号：${tableName}`);
+
+            document.getElementById(inputId).value = '';
+            loadStores();
+        }
+
+        // 删除桌号
+        function deleteTable(storeIndex, tableIndex) {
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const tableName = stores[storeIndex].tables[tableIndex];
+
+            if (!confirm(`⚠️ 确定要删除桌号"${tableName}"吗？`)) {
+                return;
+            }
+
+            stores[storeIndex].tables.splice(tableIndex, 1);
+            localStorage.setItem('ybl_stores', JSON.stringify(stores));
+
+            alert(`✅ 已删除桌号：${tableName}`);
             loadStores();
         }
 
         // 删除门店
         function deleteStore(index) {
-            if (!confirm('⚠️ 确定要删除这个门店吗？删除后该门店的所有数据将无法恢复！')) {
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const storeName = stores[index].name;
+
+            if (!confirm(`⚠️ 确定要删除门店"${storeName}"吗？删除后该门店的所有数据将无法恢复！`)) {
                 return;
             }
 
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
-            const deletedStore = stores[index];
             stores.splice(index, 1);
             localStorage.setItem('ybl_stores', JSON.stringify(stores));
 
-            alert(`✅ 已删除门店：${deletedStore.name}`);
+            alert(`✅ 已删除门店：${storeName}`);
             loadStores();
         }
 
