@@ -317,19 +317,42 @@
             selectedStore.tables.forEach((tableName, index) => {
                 const tableCard = document.createElement('div');
                 tableCard.className = 'table-card';
-                tableCard.innerHTML = `
-                    <div class="table-name">${tableName}</div>
-                    <button class="btn-generate" onclick="generateQRCode('${tableName}', ${index})">
-                        ✨ 生成二维码
-                    </button>
-                    <div class="qrcode-display" id="qrcode-display-${index}">
-                        <div class="qrcode-container" id="qrcode-${index}"></div>
-                        <div class="qrcode-url" id="url-${index}"></div>
-                        <button class="btn-download" onclick="downloadQRCode(${index}, '${tableName}')">
-                            💾 下载二维码
-                        </button>
-                    </div>
-                `;
+
+                // 创建DOM元素而不是使用innerHTML，避免XSS和引号转义问题
+                const tableNameDiv = document.createElement('div');
+                tableNameDiv.className = 'table-name';
+                tableNameDiv.textContent = tableName;
+
+                const generateBtn = document.createElement('button');
+                generateBtn.className = 'btn-generate';
+                generateBtn.textContent = '✨ 生成二维码';
+                generateBtn.onclick = () => generateQRCode(tableName, index);
+
+                const qrcodeDisplay = document.createElement('div');
+                qrcodeDisplay.className = 'qrcode-display';
+                qrcodeDisplay.id = `qrcode-display-${index}`;
+
+                const qrcodeContainer = document.createElement('div');
+                qrcodeContainer.className = 'qrcode-container';
+                qrcodeContainer.id = `qrcode-${index}`;
+
+                const urlDisplay = document.createElement('div');
+                urlDisplay.className = 'qrcode-url';
+                urlDisplay.id = `url-${index}`;
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'btn-download';
+                downloadBtn.textContent = '💾 下载二维码';
+                downloadBtn.onclick = () => downloadQRCode(index, tableName);
+
+                qrcodeDisplay.appendChild(qrcodeContainer);
+                qrcodeDisplay.appendChild(urlDisplay);
+                qrcodeDisplay.appendChild(downloadBtn);
+
+                tableCard.appendChild(tableNameDiv);
+                tableCard.appendChild(generateBtn);
+                tableCard.appendChild(qrcodeDisplay);
+
                 grid.appendChild(tableCard);
             });
         }
