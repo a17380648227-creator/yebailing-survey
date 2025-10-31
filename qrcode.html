@@ -165,9 +165,23 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 15px;
-            padding: 10px;
+            padding: 15px;
             background: #f8f9fa;
             border-radius: 8px;
+        }
+
+        /* 限制二维码内部元素的尺寸 */
+        .qrcode-container canvas,
+        .qrcode-container img {
+            max-width: 150px !important;
+            max-height: 150px !important;
+            width: 150px !important;
+            height: 150px !important;
+        }
+
+        /* 隐藏QRCode库可能生成的任何文本元素 */
+        .qrcode-container * {
+            font-size: 0 !important;
         }
 
         .btn-download {
@@ -389,11 +403,11 @@
                     // 构造URL（使用短参数名缩短URL长度）
                     const url = `${SURVEY_URL}?s=${encodeURIComponent(selectedStore.name)}&t=${encodeURIComponent(tableName)}`;
 
-                    // 生成二维码（优化尺寸，使用M级纠错）
+                    // 生成二维码（150x150尺寸，使用M级纠错）
                     qrCodeInstances[index] = new QRCode(container, {
                         text: url,
-                        width: 180,
-                        height: 180,
+                        width: 150,
+                        height: 150,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.M
