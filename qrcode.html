@@ -315,6 +315,8 @@
 
             const grid = document.getElementById('tableGrid');
             selectedStore.tables.forEach((tableName, index) => {
+                console.log(`创建桌位卡片: ${tableName}, index: ${index}`);
+
                 const tableCard = document.createElement('div');
                 tableCard.className = 'table-card';
 
@@ -326,7 +328,10 @@
                 const generateBtn = document.createElement('button');
                 generateBtn.className = 'btn-generate';
                 generateBtn.textContent = '✨ 生成二维码';
-                generateBtn.onclick = () => generateQRCode(tableName, index);
+                generateBtn.onclick = () => {
+                    console.log(`按钮被点击: ${tableName}, index: ${index}`);
+                    generateQRCode(tableName, index);
+                };
 
                 const qrcodeDisplay = document.createElement('div');
                 qrcodeDisplay.className = 'qrcode-display';
@@ -359,36 +364,56 @@
 
         // 生成二维码
         function generateQRCode(tableName, index) {
-            const display = document.getElementById(`qrcode-display-${index}`);
-            const container = document.getElementById(`qrcode-${index}`);
-            const urlDisplay = document.getElementById(`url-${index}`);
+            try {
+                console.log('开始生成二维码:', tableName, index);
 
-            // 清空之前的二维码
-            container.innerHTML = '';
+                // 检查QRCode库是否加载
+                if (typeof QRCode === 'undefined') {
+                    alert('❌ 二维码库加载失败，请刷新页面重试');
+                    console.error('QRCode库未加载');
+                    return;
+                }
 
-            // 构造URL
-            const url = `${SURVEY_URL}?store=${encodeURIComponent(selectedStore.name)}&table=${encodeURIComponent(tableName)}`;
+                const display = document.getElementById(`qrcode-display-${index}`);
+                const container = document.getElementById(`qrcode-${index}`);
+                const urlDisplay = document.getElementById(`url-${index}`);
 
-            // 显示URL
-            urlDisplay.textContent = url;
+                if (!display || !container || !urlDisplay) {
+                    alert('❌ 页面元素未找到');
+                    console.error('元素未找到:', display, container, urlDisplay);
+                    return;
+                }
 
-            // 生成二维码
-            new QRCode(container, {
-                text: url,
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+                // 清空之前的二维码
+                container.innerHTML = '';
 
-            // 显示二维码区域
-            display.classList.add('show');
+                // 构造URL
+                const url = `${SURVEY_URL}?store=${encodeURIComponent(selectedStore.name)}&table=${encodeURIComponent(tableName)}`;
+                console.log('生成的URL:', url);
 
-            // 提示成功
-            setTimeout(() => {
+                // 显示URL
+                urlDisplay.textContent = url;
+
+                // 生成二维码
+                new QRCode(container, {
+                    text: url,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                // 显示二维码区域
+                display.classList.add('show');
+
+                // 提示成功
+                console.log('二维码生成成功');
                 alert(`✅ 成功生成 ${selectedStore.name} - ${tableName} 的二维码！`);
-            }, 100);
+            } catch (error) {
+                console.error('生成二维码出错:', error);
+                alert(`❌ 生成二维码失败: ${error.message}`);
+            }
         }
 
         // 下载二维码
