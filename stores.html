@@ -13,228 +13,313 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
-        }
-
-        .header {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .page-title {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .page-title h1 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .page-title p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .add-store-card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .form-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
         }
 
-        .stores-list {
-            background: white;
+        .page-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            text-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(147, 197, 253, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 197, 253, 0.03) 100%);
+            pointer-events: none;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title-icon {
+            font-size: 28px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(147, 197, 253, 0.3);
             border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-hint {
+            margin-top: 12px;
+            padding: 15px 20px;
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #fbbf24;
+            border-radius: 12px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
         }
 
         .store-item {
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(147, 197, 253, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
             transition: all 0.3s;
         }
 
         .store-item:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
         }
 
         .store-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .store-name {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
-            color: #333;
-        }
-
-        .store-info {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .btn-danger {
-            background: #ef4444;
             color: white;
         }
 
-        .btn-danger:hover {
-            background: #dc2626;
+        .store-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .info-icon {
+            font-size: 20px;
+        }
+
+        .table-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .table-tag {
+            padding: 6px 14px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #93c5fd;
+            font-weight: 600;
         }
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: #666;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        .empty-state-icon {
+        .empty-icon {
             font-size: 80px;
             margin-bottom: 20px;
+            opacity: 0.5;
         }
 
-        .hint {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            color: #92400e;
-            font-size: 14px;
-            line-height: 1.6;
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 32px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .store-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <a href="admin.html" class="logo">🍴 野百灵餐厅管理后台</a>
-        <div style="color: #666;">门店管理</div>
-    </div>
+    <script src="navbar.js"></script>
+    <script>insertNavbar('stores.html');</script>
 
-    <div class="container">
-        <div class="page-title">
-            <h1>🏪 门店管理</h1>
-            <p>在这里添加您的门店和设置桌位编号</p>
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">🏪 门店管理</h1>
+            <p class="page-subtitle">管理您的门店和桌位信息</p>
         </div>
 
-        <!-- 添加门店表单 -->
-        <div class="add-store-card">
-            <div class="form-title">➕ 添加新门店</div>
-            <div class="form-group">
-                <label>门店名称</label>
-                <input type="text" id="storeName" placeholder="例如：朝阳店、三里屯店">
+        <!-- 添加门店 -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-title-icon">➕</span>
+                添加新门店
+            </h2>
+
+            <div class="form-section">
+                <label class="form-label">门店名称</label>
+                <input type="text" id="storeName" class="form-input" placeholder="例如：朝阳店、三里屯店">
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>桌号开始</label>
-                    <input type="number" id="tableStart" placeholder="例如：1" value="1" min="1">
+
+            <div class="form-section">
+                <label class="form-label">桌位编号（自定义）</label>
+                <input type="text" id="tableNumbers" class="form-input" placeholder="例如：A1,A2,A3,B1,B2 或 1号桌,2号桌,3号桌">
+                <div class="form-hint">
+                    💡 <strong>灵活编号：</strong>您可以按照自己的习惯输入桌号<br>
+                    • 用逗号分隔每个桌号<br>
+                    • 支持字母+数字组合（A1, A2, B1）<br>
+                    • 支持中文（1号桌, 2号桌, 雅座1）<br>
+                    • 支持纯数字（1, 2, 3）<br>
+                    • 示例：<code style="color:#fbbf24">A1,A2,A3,B1,B2,VIP1,VIP2</code>
                 </div>
-                <div class="form-group">
-                    <label>桌号结束</label>
-                    <input type="number" id="tableEnd" placeholder="例如：20" min="1">
-                </div>
             </div>
-            <div class="hint">
-                💡 <strong>提示：</strong>比如您的门店有20张桌子，桌号从1到20，那么就填写"桌号开始：1"，"桌号结束：20"。系统会自动为每张桌子生成独立的二维码。
-            </div>
-            <div style="margin-top: 20px;">
-                <button class="btn btn-primary" onclick="addStore()">添加门店</button>
-            </div>
+
+            <button class="btn btn-primary" onclick="addStore()">✨ 添加门店</button>
         </div>
 
         <!-- 门店列表 -->
-        <div class="stores-list">
-            <div class="form-title">📋 门店列表</div>
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-title-icon">📋</span>
+                门店列表
+            </h2>
             <div id="storesList"></div>
         </div>
     </div>
@@ -248,7 +333,7 @@
             if (stores.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🏪</div>
+                        <div class="empty-icon">🏪</div>
                         <div>还没有添加门店，点击上方按钮添加第一个门店吧！</div>
                     </div>
                 `;
@@ -256,16 +341,30 @@
             }
 
             container.innerHTML = stores.map((store, index) => {
-                const tableCount = store.tableEnd - store.tableStart + 1;
+                const tableCount = store.tables.length;
+                const createdDate = new Date(store.createdAt).toLocaleString('zh-CN');
+
                 return `
                     <div class="store-item">
                         <div class="store-header">
                             <div class="store-name">${store.name}</div>
-                            <button class="btn btn-danger" onclick="deleteStore(${index})">删除</button>
+                            <button class="btn btn-danger" onclick="deleteStore(${index})">🗑️ 删除</button>
                         </div>
-                        <div class="store-info">📋 桌位范围：${store.tableStart} - ${store.tableEnd} 号</div>
-                        <div class="store-info">🪑 桌位总数：${tableCount} 张</div>
-                        <div class="store-info">📅 创建时间：${new Date(store.createdAt).toLocaleString('zh-CN')}</div>
+                        <div class="store-info">
+                            <div class="info-item">
+                                <span class="info-icon">🪑</span>
+                                <span>${tableCount} 张桌子</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">📅</span>
+                                <span>${createdDate}</span>
+                            </div>
+                        </div>
+                        <div class="table-tags">
+                            ${store.tables.map(table => `
+                                <span class="table-tag">${table}</span>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -274,21 +373,25 @@
         // 添加门店
         function addStore() {
             const name = document.getElementById('storeName').value.trim();
-            const tableStart = parseInt(document.getElementById('tableStart').value);
-            const tableEnd = parseInt(document.getElementById('tableEnd').value);
+            const tableNumbersInput = document.getElementById('tableNumbers').value.trim();
 
             if (!name) {
                 alert('❌ 请输入门店名称');
                 return;
             }
 
-            if (!tableStart || !tableEnd) {
-                alert('❌ 请输入桌号范围');
+            if (!tableNumbersInput) {
+                alert('❌ 请输入桌位编号');
                 return;
             }
 
-            if (tableStart > tableEnd) {
-                alert('❌ 桌号开始不能大于桌号结束');
+            // 解析桌号（用逗号分隔，去除空格）
+            const tables = tableNumbersInput.split(',')
+                .map(t => t.trim())
+                .filter(t => t.length > 0);
+
+            if (tables.length === 0) {
+                alert('❌ 请输入至少一个桌号');
                 return;
             }
 
@@ -297,20 +400,18 @@
             const newStore = {
                 id: Date.now(),
                 name: name,
-                tableStart: tableStart,
-                tableEnd: tableEnd,
+                tables: tables,
                 createdAt: new Date().toISOString()
             };
 
             stores.push(newStore);
             localStorage.setItem('ybl_stores', JSON.stringify(stores));
 
-            alert(`✅ 成功添加门店：${name}\n📋 桌位：${tableStart}-${tableEnd}号（共${tableEnd - tableStart + 1}张）`);
+            alert(`✅ 成功添加门店：${name}\n📋 桌位：${tables.join(', ')}（共${tables.length}张）`);
 
             // 清空表单
             document.getElementById('storeName').value = '';
-            document.getElementById('tableStart').value = '1';
-            document.getElementById('tableEnd').value = '';
+            document.getElementById('tableNumbers').value = '';
 
             // 刷新列表
             loadStores();
@@ -323,10 +424,11 @@
             }
 
             const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const deletedStore = stores[index];
             stores.splice(index, 1);
             localStorage.setItem('ybl_stores', JSON.stringify(stores));
 
-            alert('✅ 门店已删除');
+            alert(`✅ 已删除门店：${deletedStore.name}`);
             loadStores();
         }
 
