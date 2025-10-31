@@ -304,7 +304,11 @@
 
         // 加载数据
         function loadData() {
+            console.log('🔄 正在加载问卷数据...');
+
             allAnswers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+            console.log('📊 从localStorage读取到的问卷数量:', allAnswers.length);
+            console.log('📝 所有问卷数据:', allAnswers);
 
             // 按时间倒序排列（最新的在前面）
             allAnswers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
