@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>野百灵用餐反馈 - 苗族蝴蝶纹</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7f1d1d 50%, #1e40af 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 苗族刺绣背景 - 对称蝴蝶图案 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                /* 左侧蝴蝶 */
+                radial-gradient(ellipse 40px 30px at 15% 25%, #dc2626 45%, transparent 45%),
+                radial-gradient(ellipse 40px 30px at 19% 25%, #dc2626 45%, transparent 45%),
+                radial-gradient(ellipse 35px 40px at 17% 20%, #dc2626 45%, transparent 45%),
+                radial-gradient(circle 10px at 17% 27%, #fbbf24 55%, transparent 55%),
+
+                /* 右侧蝴蝶 */
+                radial-gradient(ellipse 40px 30px at 85% 25%, #2563eb 45%, transparent 45%),
+                radial-gradient(ellipse 40px 30px at 81% 25%, #2563eb 45%, transparent 45%),
+                radial-gradient(ellipse 35px 40px at 83% 20%, #2563eb 45%, transparent 45%),
+                radial-gradient(circle 10px at 83% 27%, #fbbf24 55%, transparent 55%),
+
+                /* 底部花朵 */
+                radial-gradient(circle 12px at 50% 70%, #fbbf24 50%, transparent 50%),
+                radial-gradient(circle 8px at 48% 68%, #dc2626 50%, transparent 50%),
+                radial-gradient(circle 8px at 52% 68%, #dc2626 50%, transparent 50%),
+                radial-gradient(circle 8px at 48% 72%, #2563eb 50%, transparent 50%),
+                radial-gradient(circle 8px at 52% 72%, #2563eb 50%, transparent 50%),
+
+                /* 装饰点 */
+                radial-gradient(circle 4px at 30% 50%, #dc2626 50%, transparent 50%),
+                radial-gradient(circle 4px at 70% 50%, #2563eb 50%, transparent 50%),
+                radial-gradient(circle 3px at 40% 60%, #fbbf24 50%, transparent 50%),
+                radial-gradient(circle 3px at 60% 60%, #fbbf24 50%, transparent 50%);
+
+            background-size: 100% 100%;
+            opacity: 0.2;
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(15px); }
+        }
+
+        /* 轮播页面 */
+        .carousel-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            transition: left 0.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .carousel-slide.active {
+            left: 0;
+        }
+
+        .carousel-slide.prev {
+            left: -100%;
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(30,58,138,0.4) 0%, rgba(127,29,29,0.5) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 20px;
+        }
+
+        .carousel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-name {
+            font-size: 26px;
+            font-weight: 900;
+            color: #fbbf24;
+            text-shadow:
+                0 0 10px rgba(251,191,36,0.8),
+                2px 2px 0 #dc2626,
+                -2px -2px 0 #2563eb;
+            letter-spacing: 3px;
+        }
+
+        .skip-btn {
+            background: rgba(251,191,36,0.9);
+            border: 2px solid white;
+            color: #7f1d1d;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .skip-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(251,191,36,0.5);
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            width: 30px;
+            border-radius: 5px;
+            background: #fbbf24;
+            box-shadow: 0 0 10px rgba(251,191,36,0.8);
+        }
+
+        /* 问卷容器 */
+        .survey-container {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .survey-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 进度条 - 苗族刺绣风格 */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid #fbbf24;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc2626, #fbbf24, #2563eb);
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        /* 问题卡片 - 苗族刺绣边框装饰 */
+        .question-card {
+            display: none;
+            background: linear-gradient(135deg, #fef3c7 0%, #fef2f2 50%, #dbeafe 100%);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow:
+                0 0 0 4px #dc2626,
+                0 0 0 6px #fbbf24,
+                0 0 0 10px #2563eb,
+                0 0 0 12px white,
+                0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+            margin: auto 0;
+            position: relative;
+        }
+
+        /* 内部装饰虚线边框 */
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 2px dashed rgba(220,38,38,0.4);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        /* 四角装饰点 */
+        .question-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle 6px at 10% 10%, #dc2626 50%, transparent 50%),
+                radial-gradient(circle 6px at 90% 10%, #2563eb 50%, transparent 50%),
+                radial-gradient(circle 6px at 10% 90%, #2563eb 50%, transparent 50%),
+                radial-gradient(circle 6px at 90% 90%, #dc2626 50%, transparent 50%),
+                radial-gradient(circle 4px at 50% 5%, #fbbf24 50%, transparent 50%),
+                radial-gradient(circle 4px at 50% 95%, #fbbf24 50%, transparent 50%);
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .question-card.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .question-number {
+            color: #7f1d1d;
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .question-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e3a8a;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            text-shadow: 1px 1px 0 rgba(220,38,38,0.1);
+        }
+
+        .question-subtitle {
+            font-size: 14px;
+            color: #7f1d1d;
+            margin-top: -20px;
+            margin-bottom: 30px;
+        }
+
+        /* 选项样式 - 苗族色彩 */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            background: white;
+            border: 3px solid transparent;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3a8a;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .option-label:hover {
+            border-color: #fbbf24;
+            transform: translateX(5px);
+            box-shadow: -5px 0 0 #dc2626, -10px 0 0 #2563eb;
+        }
+
+        .option input:checked + .option-label {
+            background: linear-gradient(135deg, #dc2626, #2563eb);
+            border-color: #fbbf24;
+            color: white;
+            box-shadow: 0 6px 20px rgba(220,38,38,0.4);
+        }
+
+        .option-label::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            border: 3px solid #2563eb;
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .option input:checked + .option-label::before {
+            background: #fbbf24;
+            border-color: white;
+            box-shadow: inset 0 0 0 4px #dc2626;
+        }
+
+        /* 星级评分 - 苗族色彩 */
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .star {
+            font-size: 48px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #dbeafe;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #fbbf24;
+            transform: scale(1.2);
+            filter: drop-shadow(0 4px 10px rgba(220,38,38,0.5));
+        }
+
+        /* 文本输入 */
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 18px;
+            border: 4px solid #fbbf24;
+            border-radius: 14px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+            background: white;
+            box-shadow: inset -3px 0 0 #dc2626, inset 3px 0 0 #2563eb;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow:
+                0 0 0 4px rgba(220,38,38,0.2),
+                inset -3px 0 0 #dc2626,
+                inset 3px 0 0 #2563eb;
+        }
+
+        textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        /* 按钮 - 苗族刺绣风格 */
+        .next-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626, #2563eb);
+            color: white;
+            border: 4px solid #fbbf24;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow:
+                0 8px 25px rgba(220,38,38,0.4),
+                inset 0 2px 0 rgba(251,191,36,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .next-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .next-btn:hover::before {
+            left: 100%;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 12px 35px rgba(220,38,38,0.5),
+                inset 0 2px 0 rgba(251,191,36,0.4);
+        }
+
+        .next-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .next-btn:disabled {
+            background: #9ca3af;
+            border-color: #6b7280;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* 完成页面 */
+        .complete-screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .complete-screen.active {
+            display: flex;
+        }
+
+        .complete-content {
+            background: linear-gradient(135deg, #fef3c7 0%, #fef2f2 50%, #dbeafe 100%);
+            border-radius: 24px;
+            padding: 60px 30px;
+            box-shadow:
+                0 0 0 4px #dc2626,
+                0 0 0 6px #fbbf24,
+                0 0 0 10px #2563eb,
+                0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            animation: scaleIn 0.6s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .checkmark {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #dc2626, #2563eb);
+            border: 4px solid #fbbf24;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: checkmarkPop 0.6s ease 0.3s both;
+            box-shadow: 0 10px 30px rgba(220,38,38,0.4);
+        }
+
+        @keyframes checkmarkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .checkmark::after {
+            content: '✓';
+            font-size: 50px;
+            color: white;
+            font-weight: 800;
+        }
+
+        .complete-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0 rgba(220,38,38,0.2);
+        }
+
+        .complete-text {
+            font-size: 16px;
+            color: #7f1d1d;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .question-card {
+                padding: 30px 20px;
+            }
+
+            .question-title {
+                font-size: 20px;
+            }
+
+            .star {
+                font-size: 38px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 轮播页面 -->
+    <div class="carousel-container" id="carousel">
+        <div class="carousel-slide active" style="background-image: url('pic/product1.jpg')">
+            <div class="carousel-overlay">
+                <div class="carousel-header">
+                    <div class="brand-name">野百灵餐厅</div>
+                    <button class="skip-btn" onclick="skipCarousel()">跳过</button>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-slide" style="background-image: url('pic/product2.jpg')">
+            <div class="carousel-overlay">
+                <div class="carousel-header">
+                    <div class="brand-name">野百灵餐厅</div>
+                    <button class="skip-btn" onclick="skipCarousel()">跳过</button>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-slide" style="background-image: url('pic/product3.jpg')">
+            <div class="carousel-overlay">
+                <div class="carousel-header">
+                    <div class="brand-name">野百灵餐厅</div>
+                    <button class="skip-btn" onclick="skipCarousel()">跳过</button>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 问卷容器 -->
+    <div class="survey-container" id="survey">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+        </div>
+
+        <!-- 问题1 -->
+        <div class="question-card active" id="question1">
+            <div class="question-number">问题 1/4</div>
+            <h2 class="question-title">今天您和谁一起来用餐的？</h2>
+            <div class="options">
+                <label class="option">
+                    <input type="radio" name="companion" value="家人">
+                    <span class="option-label">家人</span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="companion" value="朋友">
+                    <span class="option-label">朋友</span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="companion" value="对象">
+                    <span class="option-label">对象</span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="companion" value="独自">
+                    <span class="option-label">独自</span>
+                </label>
+            </div>
+            <button class="next-btn" onclick="nextQuestion(2)" disabled id="next1">下一步</button>
+        </div>
+
+        <!-- 问题2 -->
+        <div class="question-card" id="question2">
+            <div class="question-number">问题 2/4</div>
+            <h2 class="question-title">您对今天的菜品满意吗？</h2>
+            <p class="question-subtitle">点击星星进行评分</p>
+            <div class="star-rating" id="starRating">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <button class="next-btn" onclick="nextQuestion(3)" disabled id="next2">下一步</button>
+        </div>
+
+        <!-- 问题3 -->
+        <div class="question-card" id="question3">
+            <div class="question-number">问题 3/4</div>
+            <h2 class="question-title">以下哪些内容您觉得有待改进？</h2>
+            <p class="question-subtitle">可以选择多个选项</p>
+            <div class="options">
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="菜品-口味">
+                    <span class="option-label">菜品 - 口味</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="菜品-分量">
+                    <span class="option-label">菜品 - 分量</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="菜品-价格">
+                    <span class="option-label">菜品 - 价格</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="服务">
+                    <span class="option-label">服务</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="环境">
+                    <span class="option-label">环境</span>
+                </label>
+            </div>
+            <button class="next-btn" onclick="nextQuestion(4)" id="next3">下一步</button>
+        </div>
+
+        <!-- 问题4 -->
+        <div class="question-card" id="question4">
+            <div class="question-number">问题 4/4</div>
+            <h2 class="question-title">其他建议</h2>
+            <p class="question-subtitle">选填，分享更多想法...</p>
+            <textarea id="suggestions" placeholder="请在此处写下您的建议..."></textarea>
+            <button class="next-btn" onclick="submitSurvey()" id="next4">提交反馈</button>
+        </div>
+    </div>
+
+    <!-- 完成页面 -->
+    <div class="complete-screen" id="complete">
+        <div class="complete-content">
+            <div class="checkmark"></div>
+            <h2 class="complete-title">感谢您的反馈！</h2>
+            <p class="complete-text">您的宝贵意见将帮助我们不断改进，为您提供更好的用餐体验。</p>
+        </div>
+    </div>
+
+    <script>
+        // 轮播功能
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const totalSlides = slides.length;
+        let carouselInterval;
+
+        function startCarousel() {
+            carouselInterval = setInterval(() => {
+                nextSlide();
+            }, 1000);
+        }
+
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            slides[currentSlide].classList.add('prev');
+
+            currentSlide = (currentSlide + 1) % totalSlides;
+
+            if (currentSlide === 0) {
+                clearInterval(carouselInterval);
+                setTimeout(showSurvey, 500);
+            } else {
+                slides[currentSlide].classList.add('active');
+            }
+        }
+
+        function skipCarousel() {
+            clearInterval(carouselInterval);
+            showSurvey();
+        }
+
+        function showSurvey() {
+            document.getElementById('carousel').style.display = 'none';
+            document.getElementById('survey').classList.add('active');
+        }
+
+        startCarousel();
+
+        // 问题1
+        document.querySelectorAll('input[name="companion"]').forEach(input => {
+            input.addEventListener('change', () => {
+                document.getElementById('next1').disabled = false;
+            });
+        });
+
+        // 问题2
+        let selectedRating = 0;
+        const stars = document.querySelectorAll('.star');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.value);
+                updateStars(selectedRating);
+                document.getElementById('next2').disabled = false;
+            });
+        });
+
+        function updateStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // 切换问题
+        let currentQuestion = 1;
+        function nextQuestion(nextNum) {
+            document.getElementById(`question${currentQuestion}`).classList.remove('active');
+            currentQuestion = nextNum;
+            document.getElementById(`question${currentQuestion}`).classList.add('active');
+
+            const progress = (currentQuestion / 4) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // 提交问卷
+        function submitSurvey() {
+            const companion = document.querySelector('input[name="companion"]:checked')?.value;
+            const rating = selectedRating;
+            const improvements = Array.from(document.querySelectorAll('input[name="improvement"]:checked'))
+                .map(cb => cb.value);
+            const suggestions = document.getElementById('suggestions').value;
+
+            console.log('问卷数据:', {
+                companion,
+                rating,
+                improvements,
+                suggestions
+            });
+
+            document.getElementById('survey').style.display = 'none';
+            document.getElementById('complete').classList.add('active');
+
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

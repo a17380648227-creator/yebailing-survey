@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>野百灵用餐反馈 - 苗族蝴蝶</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+
+        /* 轮播页面 */
+        .carousel-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            transition: left 0.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* 优化图片渲染性能 */
+            will-change: left;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        .carousel-slide.active {
+            left: 0;
+        }
+
+        .carousel-slide.prev {
+            left: -100%;
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 20px;
+        }
+
+        .carousel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-name {
+            font-size: 26px;
+            font-weight: 800;
+            color: white;
+            text-shadow:
+                0 2px 10px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(255, 107, 53, 0.5),
+                0 0 40px rgba(251, 191, 36, 0.3);
+            letter-spacing: 1px;
+            animation: brandGlow 3s ease-in-out infinite;
+        }
+
+        .store-info {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(59, 130, 246, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .store-info.show {
+            display: block;
+        }
+
+        @keyframes brandGlow {
+            0%, 100% {
+                text-shadow:
+                    0 2px 10px rgba(0, 0, 0, 0.4),
+                    0 0 20px rgba(255, 107, 53, 0.5),
+                    0 0 40px rgba(251, 191, 36, 0.3);
+            }
+            50% {
+                text-shadow:
+                    0 2px 10px rgba(0, 0, 0, 0.4),
+                    0 0 30px rgba(255, 107, 53, 0.7),
+                    0 0 60px rgba(251, 191, 36, 0.5);
+            }
+        }
+
+        .skip-btn {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skip-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: left 0.6s ease;
+        }
+
+        .skip-btn:hover::before {
+            left: 100%;
+        }
+
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.08) translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .skip-btn:active {
+            transform: scale(1.02);
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(1.2);
+        }
+
+        .dot.active {
+            width: 32px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #3b82f6, #2563eb, #1d4ed8);
+            border-color: white;
+            box-shadow:
+                0 0 15px rgba(59, 130, 246, 0.8),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 问卷容器 */
+        .survey-container {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            animation: fadeIn 0.6s ease;
+            position: relative;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                url('pic/survey-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .survey-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(251, 191, 36, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 50% 50%, rgba(190, 18, 60, 0.06) 0%, transparent 30%),
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.02) 10px, rgba(255, 255, 255, 0.02) 20px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .survey-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(5px);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #2563eb, #1d4ed8);
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            animation: progressShine 2s ease-in-out infinite;
+        }
+
+        @keyframes progressShine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* 问题卡片 */
+        .question-card {
+            display: none;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow:
+                0 20px 60px rgba(37, 99, 235, 0.15),
+                0 0 0 1px rgba(147, 197, 253, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.5s ease;
+            margin: auto 0;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.03) 0%, rgba(59, 130, 246, 0.05) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes cardShimmer {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(10%, 10%) scale(1.1);
+            }
+        }
+
+        .question-card.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .question-number {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.75) 0%, rgba(37, 99, 235, 0.85) 100%);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+
+        .question-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+        }
+
+        .question-subtitle {
+            font-size: 14px;
+            color: #ffffff;
+            margin-top: -20px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        /* 选项样式 */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-label::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(147, 197, 253, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .option-label:hover::after {
+            left: 100%;
+        }
+
+        .option-label:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #3b82f6;
+            transform: translateX(8px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
+        }
+
+        .option input:checked + .option-label {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.85) 0%, rgba(37, 99, 235, 0.9) 50%, rgba(29, 78, 216, 0.85) 100%);
+            backdrop-filter: blur(15px);
+            border-color: #93c5fd;
+            color: white;
+            box-shadow:
+                0 8px 25px rgba(59, 130, 246, 0.4),
+                0 0 0 3px rgba(147, 197, 253, 0.25);
+            transform: translateX(8px) scale(1.02);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .option-label::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(147, 197, 253, 0.5);
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .option input:checked + .option-label::before {
+            background: white;
+            border-color: white;
+            box-shadow: inset 0 0 0 4px #3b82f6;
+        }
+
+        /* 星级评分 */
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .star {
+            font-size: 48px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: rgba(226, 232, 240, 0.4);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            position: relative;
+        }
+
+        .star:hover {
+            color: #3b82f6;
+            transform: scale(1.3) rotate(15deg);
+            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.6));
+        }
+
+        .star.active {
+            color: #3b82f6;
+            transform: scale(1.2);
+            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.8));
+            animation: starPulse 0.6s ease;
+        }
+
+        @keyframes starPulse {
+            0%, 100% {
+                transform: scale(1.2);
+            }
+            50% {
+                transform: scale(1.4);
+            }
+        }
+
+        /* 文本输入 */
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 18px;
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow:
+                0 0 0 4px rgba(59, 130, 246, 0.15),
+                0 6px 20px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+        }
+
+        /* 按钮容器 */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* 按钮 */
+        .next-btn, .prev-btn {
+            flex: 1;
+            padding: 18px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.85) 0%, rgba(37, 99, 235, 0.9) 50%, rgba(29, 78, 216, 0.85) 100%);
+            backdrop-filter: blur(12px);
+            color: white;
+            border: 2px solid rgba(147, 197, 253, 0.4);
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 8px 25px rgba(59, 130, 246, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prev-btn {
+            background: linear-gradient(135deg, rgba(100, 116, 139, 0.75) 0%, rgba(71, 85, 105, 0.8) 50%, rgba(51, 65, 85, 0.75) 100%);
+            border-color: rgba(148, 163, 184, 0.4);
+            box-shadow:
+                0 8px 25px rgba(71, 85, 105, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        }
+
+        .prev-btn.hidden {
+            display: none;
+        }
+
+        .next-btn.full-width {
+            flex: auto;
+            width: 100%;
+        }
+
+        .next-btn::before, .prev-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: left 0.6s ease;
+        }
+
+        .next-btn:hover::before, .prev-btn:hover::before {
+            left: 100%;
+        }
+
+        .next-btn::after, .prev-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .next-btn:hover::after, .prev-btn:hover::after {
+            width: 400px;
+            height: 400px;
+        }
+
+        .next-btn:hover, .prev-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow:
+                0 15px 40px rgba(59, 130, 246, 0.5),
+                0 0 0 3px rgba(147, 197, 253, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+            border-color: #93c5fd;
+        }
+
+        .prev-btn:hover {
+            box-shadow:
+                0 15px 40px rgba(71, 85, 105, 0.4),
+                0 0 0 3px rgba(148, 163, 184, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+            border-color: #94a3b8;
+        }
+
+        .next-btn:active, .prev-btn:active {
+            transform: translateY(-1px) scale(1);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .next-btn:disabled {
+            background: linear-gradient(135deg, rgba(203, 213, 224, 0.5), rgba(160, 174, 192, 0.5));
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* 完成页面 */
+        .complete-screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                url('pic/survey-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        .complete-screen::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(251, 191, 36, 0.12) 0%, transparent 30%),
+                radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.12) 0%, transparent 30%),
+                radial-gradient(circle at 50% 50%, rgba(190, 18, 60, 0.08) 0%, transparent 35%),
+                repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255, 255, 255, 0.03) 15px, rgba(255, 255, 255, 0.03) 30px);
+            pointer-events: none;
+            z-index: 0;
+            animation: subtleFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes subtleFloat {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(10px, 10px);
+            }
+        }
+
+        .complete-screen.active {
+            display: flex;
+        }
+
+        .complete-content {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(18px);
+            border-radius: 24px;
+            padding: 60px 30px;
+            box-shadow:
+                0 25px 80px rgba(37, 99, 235, 0.2),
+                0 0 0 1px rgba(147, 197, 253, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            animation: scaleIn 0.6s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .complete-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.05) 0%, rgba(59, 130, 246, 0.08) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.85) 0%, rgba(37, 99, 235, 0.9) 50%, rgba(29, 78, 216, 0.85) 100%);
+            backdrop-filter: blur(12px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: checkmarkPop 0.6s ease 0.3s both;
+            box-shadow:
+                0 10px 30px rgba(59, 130, 246, 0.5),
+                0 0 0 5px rgba(147, 197, 253, 0.15),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .checkmark::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            animation: checkmarkRipple 2s ease-out infinite;
+        }
+
+        @keyframes checkmarkRipple {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes checkmarkPop {
+            0% {
+                transform: scale(0) rotate(-180deg);
+            }
+            50% {
+                transform: scale(1.3) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .checkmark::after {
+            content: '✓';
+            font-size: 48px;
+            color: white;
+            font-weight: 700;
+            animation: checkmarkCheck 0.6s ease 0.6s both;
+        }
+
+        @keyframes checkmarkCheck {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .complete-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .complete-text {
+            font-size: 16px;
+            color: #ffffff;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 12px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(8px);
+            font-weight: 600;
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .question-card {
+                padding: 30px 20px;
+            }
+
+            .question-title {
+                font-size: 20px;
+            }
+
+            .star {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 门店和桌号信息显示 -->
+    <div class="store-info" id="storeInfoTag"></div>
+
+    <!-- 轮播页面 -->
+    <div class="carousel-container" id="carousel">
+        <div class="carousel-slide active" data-bg="pic/product1.jpg">
+            <div class="carousel-overlay">
+                <div class="carousel-header">
+                    <div class="brand-name">野百灵餐厅</div>
+                    <button class="skip-btn" onclick="skipCarousel()">跳过</button>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-slide" data-bg="pic/product2.jpg">
+            <div class="carousel-overlay">
+                <div class="carousel-header">
+                    <div class="brand-name">野百灵餐厅</div>
+                    <button class="skip-btn" onclick="skipCarousel()">跳过</button>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-slide" data-bg="pic/product3.jpg">
+            <div class="carousel-overlay">
+                <div class="carousel-header">
+                    <div class="brand-name">野百灵餐厅</div>
+                    <button class="skip-btn" onclick="skipCarousel()">跳过</button>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 问卷容器 -->
+    <div class="survey-container" id="survey">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+        </div>
+
+        <!-- 问题1 -->
+        <div class="question-card active" id="question1">
+            <div class="question-number">问题 1/4</div>
+            <h2 class="question-title">今天您和谁一起来用餐的？</h2>
+            <div class="options">
+                <label class="option">
+                    <input type="radio" name="companion" value="家人">
+                    <span class="option-label">家人</span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="companion" value="朋友">
+                    <span class="option-label">朋友</span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="companion" value="对象">
+                    <span class="option-label">对象</span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="companion" value="独自">
+                    <span class="option-label">独自</span>
+                </label>
+            </div>
+            <div class="button-group">
+                <button class="prev-btn hidden" onclick="prevQuestion()" id="prev1">上一步</button>
+                <button class="next-btn full-width" onclick="nextQuestion(2)" disabled id="next1">下一步</button>
+            </div>
+        </div>
+
+        <!-- 问题2 -->
+        <div class="question-card" id="question2">
+            <div class="question-number">问题 2/4</div>
+            <h2 class="question-title">您对今天的菜品满意吗？</h2>
+            <p class="question-subtitle">点击星星进行评分</p>
+            <div class="star-rating" id="starRating">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <div class="button-group">
+                <button class="prev-btn" onclick="prevQuestion()" id="prev2">上一步</button>
+                <button class="next-btn" onclick="nextQuestion(3)" disabled id="next2">下一步</button>
+            </div>
+        </div>
+
+        <!-- 问题3 -->
+        <div class="question-card" id="question3">
+            <div class="question-number">问题 3/4</div>
+            <h2 class="question-title">以下哪些内容您觉得有待改进？</h2>
+            <p class="question-subtitle">可以选择多个选项</p>
+            <div class="options">
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="菜品-口味">
+                    <span class="option-label">菜品 - 口味</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="菜品-分量">
+                    <span class="option-label">菜品 - 分量</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="菜品-价格">
+                    <span class="option-label">菜品 - 价格</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="服务">
+                    <span class="option-label">服务</span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="improvement" value="环境">
+                    <span class="option-label">环境</span>
+                </label>
+            </div>
+            <div class="button-group">
+                <button class="prev-btn" onclick="prevQuestion()" id="prev3">上一步</button>
+                <button class="next-btn" onclick="nextQuestion(4)" id="next3">下一步</button>
+            </div>
+        </div>
+
+        <!-- 问题4 -->
+        <div class="question-card" id="question4">
+            <div class="question-number">问题 4/4</div>
+            <h2 class="question-title">其他建议</h2>
+            <p class="question-subtitle">选填，分享更多想法...</p>
+            <textarea id="suggestions" placeholder="请在此处写下您的建议..."></textarea>
+            <div class="button-group">
+                <button class="prev-btn" onclick="prevQuestion()" id="prev4">上一步</button>
+                <button class="next-btn" onclick="submitSurvey()" id="next4">提交反馈</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完成页面 -->
+    <div class="complete-screen" id="complete">
+        <div class="complete-content">
+            <div class="checkmark"></div>
+            <h2 class="complete-title">感谢您的反馈！</h2>
+            <p class="complete-text">您的宝贵意见将帮助我们不断改进，为您提供更好的用餐体验。</p>
+        </div>
+    </div>
+
+    <script>
+        // 获取URL参数（门店和桌号）
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                store: params.get('store') || '未知门店',
+                table: params.get('table') || '未知桌号'
+            };
+        }
+
+        // 全局存储门店和桌号信息
+        const storeInfo = getUrlParams();
+        console.log('当前门店信息:', storeInfo);
+
+        // 显示门店和桌号信息
+        window.addEventListener('load', () => {
+            const storeInfoTag = document.getElementById('storeInfoTag');
+            if (storeInfo.store !== '未知门店' && storeInfo.table !== '未知桌号') {
+                storeInfoTag.textContent = `${storeInfo.store} - ${storeInfo.table}号桌`;
+                storeInfoTag.classList.add('show');
+            }
+        });
+
+        // 优化图片加载 - 懒加载背景图片
+        function loadBackgroundImages() {
+            const slides = document.querySelectorAll('.carousel-slide');
+            slides.forEach((slide, index) => {
+                const bgUrl = slide.getAttribute('data-bg');
+                if (bgUrl) {
+                    // 创建新Image对象预加载
+                    const img = new Image();
+                    img.onload = () => {
+                        slide.style.backgroundImage = `url('${bgUrl}')`;
+                    };
+                    img.onerror = () => {
+                        // 如果加载失败，使用渐变色作为后备
+                        slide.style.background = 'linear-gradient(135deg, #1e3a8a 0%, #7c2d12 30%, #991b1b 50%, #be123c 70%, #1e3a8a 100%)';
+                    };
+                    img.src = bgUrl;
+                }
+            });
+        }
+
+        // 页面加载时执行图片加载
+        window.addEventListener('load', loadBackgroundImages);
+
+        // 轮播功能
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const totalSlides = slides.length;
+        let carouselInterval;
+
+        function startCarousel() {
+            carouselInterval = setInterval(() => {
+                nextSlide();
+            }, 1000); // 每张1秒
+        }
+
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            slides[currentSlide].classList.add('prev');
+
+            currentSlide = (currentSlide + 1) % totalSlides;
+
+            if (currentSlide === 0) {
+                clearInterval(carouselInterval);
+                setTimeout(showSurvey, 500);
+            } else {
+                slides[currentSlide].classList.add('active');
+            }
+        }
+
+        function skipCarousel() {
+            clearInterval(carouselInterval);
+            showSurvey();
+        }
+
+        function showSurvey() {
+            document.getElementById('carousel').style.display = 'none';
+            document.getElementById('survey').classList.add('active');
+        }
+
+        // 启动轮播
+        startCarousel();
+
+        // 问题1 - 单选验证
+        document.querySelectorAll('input[name="companion"]').forEach(input => {
+            input.addEventListener('change', () => {
+                document.getElementById('next1').disabled = false;
+            });
+        });
+
+        // 问题2 - 星级评分
+        let selectedRating = 0;
+        const stars = document.querySelectorAll('.star');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.value);
+                updateStars(selectedRating);
+                document.getElementById('next2').disabled = false;
+            });
+        });
+
+        function updateStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // 切换问题
+        let currentQuestion = 1;
+        function nextQuestion(nextNum) {
+            document.getElementById(`question${currentQuestion}`).classList.remove('active');
+            currentQuestion = nextNum;
+            document.getElementById(`question${currentQuestion}`).classList.add('active');
+
+            // 更新进度条
+            const progress = (currentQuestion / 4) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // 更新上一步按钮显示状态
+            updatePrevButton();
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 1) {
+                document.getElementById(`question${currentQuestion}`).classList.remove('active');
+                currentQuestion = currentQuestion - 1;
+                document.getElementById(`question${currentQuestion}`).classList.add('active');
+
+                // 更新进度条
+                const progress = (currentQuestion / 4) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+
+                // 更新上一步按钮显示状态
+                updatePrevButton();
+            }
+        }
+
+        function updatePrevButton() {
+            // 隐藏或显示所有上一步按钮
+            for (let i = 1; i <= 4; i++) {
+                const prevBtn = document.getElementById(`prev${i}`);
+                if (i === 1) {
+                    prevBtn.classList.add('hidden');
+                } else {
+                    prevBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        // 提交问卷
+        function submitSurvey() {
+            const companion = document.querySelector('input[name="companion"]:checked')?.value;
+            const rating = selectedRating;
+            const improvements = Array.from(document.querySelectorAll('input[name="improvement"]:checked'))
+                .map(cb => cb.value);
+            const suggestions = document.getElementById('suggestions').value;
+
+            // 组装完整的问卷数据（包含门店和桌号）
+            const surveyData = {
+                store: storeInfo.store,
+                table: storeInfo.table,
+                companion,
+                rating,
+                improvements,
+                suggestions,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleString('zh-CN')
+            };
+
+            console.log('问卷数据:', surveyData);
+
+            // 保存到本地存储
+            saveSurveyData(surveyData);
+
+            // 显示完成页面
+            document.getElementById('survey').style.display = 'none';
+            document.getElementById('complete').classList.add('active');
+
+            // 3秒后重置
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        }
+
+        // 保存问卷数据到localStorage
+        function saveSurveyData(data) {
+            try {
+                // 获取已存在的数据
+                let allSurveys = JSON.parse(localStorage.getItem('yebailing_surveys') || '[]');
+
+                // 添加新数据
+                allSurveys.push(data);
+
+                // 保存回localStorage
+                localStorage.setItem('yebailing_surveys', JSON.stringify(allSurveys));
+
+                console.log('✅ 问卷数据已保存到本地！', `总共 ${allSurveys.length} 份问卷`);
+            } catch (error) {
+                console.error('❌ 保存失败:', error);
+            }
+        }
+    </script>
+</body>
+</html>
