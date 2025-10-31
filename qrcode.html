@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>二维码生成 - 野百灵餐厅</title>
-    <!-- 引入QRCode.js库 -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -240,7 +238,7 @@
 
             <div class="form-section">
                 <label class="form-label">请选择门店</label>
-                <select id="storeSelect" class="form-select" onchange="loadTables()">
+                <select id="storeSelect" class="form-select">
                     <option value="">-- 请选择门店 --</option>
                 </select>
             </div>
@@ -258,183 +256,195 @@
         <div id="tablesArea"></div>
     </div>
 
+    <!-- 引入QRCode.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
+
     <script>
-        const SURVEY_URL = 'https://a17380648227-creator.github.io/yebailing-survey/survey.html';
-        let selectedStore = null;
+        // 确保在DOM和QRCode库都加载完成后再初始化
+        (function() {
+            const SURVEY_URL = 'https://a17380648227-creator.github.io/yebailing-survey/survey.html';
+            let selectedStore = null;
+            let qrCodeInstances = {}; // 存储二维码实例，避免重复创建
 
-        // 加载门店列表
-        function loadStores() {
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
-            const select = document.getElementById('storeSelect');
+            // 加载门店列表
+            function loadStores() {
+                const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+                const select = document.getElementById('storeSelect');
 
-            stores.forEach((store, index) => {
-                const tableCount = store.tables ? store.tables.length : 0;
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${store.name} (${tableCount} 张桌位)`;
-                select.appendChild(option);
-            });
-        }
-
-        // 加载桌位列表
-        function loadTables() {
-            const select = document.getElementById('storeSelect');
-            const storeIndex = select.value;
-            const area = document.getElementById('tablesArea');
-
-            if (!storeIndex) {
-                area.innerHTML = '';
-                selectedStore = null;
-                return;
-            }
-
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
-            selectedStore = stores[storeIndex];
-
-            if (!selectedStore.tables || selectedStore.tables.length === 0) {
-                area.innerHTML = `
-                    <div class="card">
-                        <div class="empty-state">
-                            <div class="empty-icon">📋</div>
-                            <div>该门店还没有桌位，请先在门店管理中添加桌位</div>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            area.innerHTML = `
-                <div class="card">
-                    <h2 class="card-title">
-                        <span>📋</span>
-                        ${selectedStore.name} - 桌位列表
-                    </h2>
-                    <div class="table-grid" id="tableGrid"></div>
-                </div>
-            `;
-
-            const grid = document.getElementById('tableGrid');
-            selectedStore.tables.forEach((tableName, index) => {
-                console.log(`创建桌位卡片: ${tableName}, index: ${index}`);
-
-                const tableCard = document.createElement('div');
-                tableCard.className = 'table-card';
-
-                // 创建DOM元素而不是使用innerHTML，避免XSS和引号转义问题
-                const tableNameDiv = document.createElement('div');
-                tableNameDiv.className = 'table-name';
-                tableNameDiv.textContent = tableName;
-
-                const generateBtn = document.createElement('button');
-                generateBtn.className = 'btn-generate';
-                generateBtn.textContent = '✨ 生成二维码';
-                generateBtn.onclick = () => {
-                    console.log(`按钮被点击: ${tableName}, index: ${index}`);
-                    generateQRCode(tableName, index);
-                };
-
-                const qrcodeDisplay = document.createElement('div');
-                qrcodeDisplay.className = 'qrcode-display';
-                qrcodeDisplay.id = `qrcode-display-${index}`;
-
-                const qrcodeContainer = document.createElement('div');
-                qrcodeContainer.className = 'qrcode-container';
-                qrcodeContainer.id = `qrcode-${index}`;
-
-                const urlDisplay = document.createElement('div');
-                urlDisplay.className = 'qrcode-url';
-                urlDisplay.id = `url-${index}`;
-
-                const downloadBtn = document.createElement('button');
-                downloadBtn.className = 'btn-download';
-                downloadBtn.textContent = '💾 下载二维码';
-                downloadBtn.onclick = () => downloadQRCode(index, tableName);
-
-                qrcodeDisplay.appendChild(qrcodeContainer);
-                qrcodeDisplay.appendChild(urlDisplay);
-                qrcodeDisplay.appendChild(downloadBtn);
-
-                tableCard.appendChild(tableNameDiv);
-                tableCard.appendChild(generateBtn);
-                tableCard.appendChild(qrcodeDisplay);
-
-                grid.appendChild(tableCard);
-            });
-        }
-
-        // 生成二维码
-        function generateQRCode(tableName, index) {
-            try {
-                console.log('开始生成二维码:', tableName, index);
-
-                // 检查QRCode库是否加载
-                if (typeof QRCode === 'undefined') {
-                    alert('❌ 二维码库加载失败，请刷新页面重试');
-                    console.error('QRCode库未加载');
-                    return;
-                }
-
-                const display = document.getElementById(`qrcode-display-${index}`);
-                const container = document.getElementById(`qrcode-${index}`);
-                const urlDisplay = document.getElementById(`url-${index}`);
-
-                if (!display || !container || !urlDisplay) {
-                    alert('❌ 页面元素未找到');
-                    console.error('元素未找到:', display, container, urlDisplay);
-                    return;
-                }
-
-                // 清空之前的二维码
-                container.innerHTML = '';
-
-                // 构造URL
-                const url = `${SURVEY_URL}?store=${encodeURIComponent(selectedStore.name)}&table=${encodeURIComponent(tableName)}`;
-                console.log('生成的URL:', url);
-
-                // 显示URL
-                urlDisplay.textContent = url;
-
-                // 生成二维码
-                new QRCode(container, {
-                    text: url,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
+                stores.forEach((store, index) => {
+                    const tableCount = store.tables ? store.tables.length : 0;
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${store.name} (${tableCount} 张桌位)`;
+                    select.appendChild(option);
                 });
 
-                // 显示二维码区域
-                display.classList.add('show');
-
-                // 提示成功
-                console.log('二维码生成成功');
-                alert(`✅ 成功生成 ${selectedStore.name} - ${tableName} 的二维码！`);
-            } catch (error) {
-                console.error('生成二维码出错:', error);
-                alert(`❌ 生成二维码失败: ${error.message}`);
+                // 绑定change事件
+                select.addEventListener('change', loadTables);
             }
-        }
 
-        // 下载二维码
-        function downloadQRCode(index, tableName) {
-            const container = document.getElementById(`qrcode-${index}`);
-            const canvas = container.querySelector('canvas');
+            // 加载桌位列表
+            function loadTables() {
+                const select = document.getElementById('storeSelect');
+                const storeIndex = select.value;
+                const area = document.getElementById('tablesArea');
 
-            if (canvas) {
-                const url = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${selectedStore.name}_${tableName}.png`;
-                link.click();
-                alert(`✅ 二维码已下载：${selectedStore.name}_${tableName}.png`);
+                if (!storeIndex) {
+                    area.innerHTML = '';
+                    selectedStore = null;
+                    return;
+                }
+
+                const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+                selectedStore = stores[storeIndex];
+                qrCodeInstances = {}; // 重置二维码实例
+
+                if (!selectedStore.tables || selectedStore.tables.length === 0) {
+                    area.innerHTML = `
+                        <div class="card">
+                            <div class="empty-state">
+                                <div class="empty-icon">📋</div>
+                                <div>该门店还没有桌位，请先在门店管理中添加桌位</div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                area.innerHTML = `
+                    <div class="card">
+                        <h2 class="card-title">
+                            <span>📋</span>
+                            ${selectedStore.name} - 桌位列表
+                        </h2>
+                        <div class="table-grid" id="tableGrid"></div>
+                    </div>
+                `;
+
+                const grid = document.getElementById('tableGrid');
+                selectedStore.tables.forEach((tableName, index) => {
+                    const tableCard = document.createElement('div');
+                    tableCard.className = 'table-card';
+
+                    const tableNameDiv = document.createElement('div');
+                    tableNameDiv.className = 'table-name';
+                    tableNameDiv.textContent = tableName;
+
+                    const generateBtn = document.createElement('button');
+                    generateBtn.className = 'btn-generate';
+                    generateBtn.textContent = '✨ 生成二维码';
+
+                    const qrcodeDisplay = document.createElement('div');
+                    qrcodeDisplay.className = 'qrcode-display';
+                    qrcodeDisplay.id = `qrcode-display-${index}`;
+
+                    const qrcodeContainer = document.createElement('div');
+                    qrcodeContainer.className = 'qrcode-container';
+                    qrcodeContainer.id = `qrcode-${index}`;
+
+                    const urlDisplay = document.createElement('div');
+                    urlDisplay.className = 'qrcode-url';
+                    urlDisplay.id = `url-${index}`;
+
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'btn-download';
+                    downloadBtn.textContent = '💾 下载二维码';
+
+                    qrcodeDisplay.appendChild(qrcodeContainer);
+                    qrcodeDisplay.appendChild(urlDisplay);
+                    qrcodeDisplay.appendChild(downloadBtn);
+
+                    tableCard.appendChild(tableNameDiv);
+                    tableCard.appendChild(generateBtn);
+                    tableCard.appendChild(qrcodeDisplay);
+
+                    grid.appendChild(tableCard);
+
+                    // 使用闭包保存变量
+                    (function(tName, idx) {
+                        generateBtn.addEventListener('click', function() {
+                            generateQRCode(tName, idx);
+                        });
+
+                        downloadBtn.addEventListener('click', function() {
+                            downloadQRCode(idx, tName);
+                        });
+                    })(tableName, index);
+                });
+            }
+
+            // 生成二维码
+            function generateQRCode(tableName, index) {
+                try {
+                    if (typeof QRCode === 'undefined') {
+                        alert('❌ 二维码库未加载，请刷新页面重试');
+                        return;
+                    }
+
+                    const display = document.getElementById(`qrcode-display-${index}`);
+                    const container = document.getElementById(`qrcode-${index}`);
+                    const urlDisplay = document.getElementById(`url-${index}`);
+
+                    if (!display || !container || !urlDisplay) {
+                        alert('❌ 页面元素未找到');
+                        return;
+                    }
+
+                    // 清空之前的二维码
+                    container.innerHTML = '';
+                    if (qrCodeInstances[index]) {
+                        delete qrCodeInstances[index];
+                    }
+
+                    // 构造URL
+                    const url = `${SURVEY_URL}?store=${encodeURIComponent(selectedStore.name)}&table=${encodeURIComponent(tableName)}`;
+
+                    // 显示URL
+                    urlDisplay.textContent = url;
+
+                    // 生成二维码
+                    qrCodeInstances[index] = new QRCode(container, {
+                        text: url,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+
+                    // 显示二维码区域
+                    display.classList.add('show');
+
+                    alert(`✅ 成功生成 ${selectedStore.name} - ${tableName} 的二维码！`);
+                } catch (error) {
+                    alert(`❌ 生成二维码失败: ${error.message}`);
+                }
+            }
+
+            // 下载二维码
+            function downloadQRCode(index, tableName) {
+                const container = document.getElementById(`qrcode-${index}`);
+                const canvas = container.querySelector('canvas');
+
+                if (canvas) {
+                    const url = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${selectedStore.name}_${tableName}.png`;
+                    link.click();
+                    alert(`✅ 二维码已下载：${selectedStore.name}_${tableName}.png`);
+                } else {
+                    alert('❌ 请先生成二维码');
+                }
+            }
+
+            // 页面加载完成后初始化
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadStores);
             } else {
-                alert('❌ 请先生成二维码');
+                loadStores();
             }
-        }
-
-        // 页面加载时加载门店
-        window.addEventListener('load', loadStores);
+        })();
     </script>
 </body>
 </html>
