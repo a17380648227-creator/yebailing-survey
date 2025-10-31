@@ -396,20 +396,20 @@
                         delete qrCodeInstances[index];
                     }
 
-                    // 构造URL
-                    const url = `${SURVEY_URL}?store=${encodeURIComponent(selectedStore.name)}&table=${encodeURIComponent(tableName)}`;
+                    // 构造URL（使用短参数名缩短URL长度）
+                    const url = `${SURVEY_URL}?s=${encodeURIComponent(selectedStore.name)}&t=${encodeURIComponent(tableName)}`;
 
                     // 显示URL
                     urlDisplay.textContent = url;
 
-                    // 生成二维码
+                    // 生成二维码（使用M级纠错，容纳更多数据，增大尺寸提高扫描率）
                     qrCodeInstances[index] = new QRCode(container, {
                         text: url,
-                        width: 200,
-                        height: 200,
+                        width: 256,
+                        height: 256,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.H
+                        correctLevel: QRCode.CorrectLevel.M
                     });
 
                     // 显示二维码区域

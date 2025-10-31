@@ -1020,12 +1020,12 @@
     </div>
 
     <script>
-        // 获取URL参数（门店和桌号）
+        // 获取URL参数（门店和桌号）- 兼容长参数名和短参数名
         function getUrlParams() {
             const params = new URLSearchParams(window.location.search);
             return {
-                store: params.get('store') || '未知门店',
-                table: params.get('table') || '未知桌号'
+                store: params.get('s') || params.get('store') || '未知门店',
+                table: params.get('t') || params.get('table') || '未知桌号'
             };
         }
 
