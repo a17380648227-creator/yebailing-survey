@@ -148,11 +148,12 @@
         }
 
         .qrcode-display {
-            margin-top: 15px;
-            padding: 15px;
+            margin-top: 20px;
+            padding: 20px;
             background: white;
             border-radius: 12px;
             display: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .qrcode-display.show {
@@ -163,15 +164,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .qrcode-url {
-            font-size: 11px;
-            color: #666;
-            word-break: break-all;
-            line-height: 1.4;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
 
         .btn-download {
@@ -342,16 +338,11 @@
                     qrcodeContainer.className = 'qrcode-container';
                     qrcodeContainer.id = `qrcode-${index}`;
 
-                    const urlDisplay = document.createElement('div');
-                    urlDisplay.className = 'qrcode-url';
-                    urlDisplay.id = `url-${index}`;
-
                     const downloadBtn = document.createElement('button');
                     downloadBtn.className = 'btn-download';
                     downloadBtn.textContent = '💾 下载二维码';
 
                     qrcodeDisplay.appendChild(qrcodeContainer);
-                    qrcodeDisplay.appendChild(urlDisplay);
                     qrcodeDisplay.appendChild(downloadBtn);
 
                     tableCard.appendChild(tableNameDiv);
@@ -383,9 +374,8 @@
 
                     const display = document.getElementById(`qrcode-display-${index}`);
                     const container = document.getElementById(`qrcode-${index}`);
-                    const urlDisplay = document.getElementById(`url-${index}`);
 
-                    if (!display || !container || !urlDisplay) {
+                    if (!display || !container) {
                         alert('❌ 页面元素未找到');
                         return;
                     }
@@ -399,14 +389,11 @@
                     // 构造URL（使用短参数名缩短URL长度）
                     const url = `${SURVEY_URL}?s=${encodeURIComponent(selectedStore.name)}&t=${encodeURIComponent(tableName)}`;
 
-                    // 显示URL
-                    urlDisplay.textContent = url;
-
-                    // 生成二维码（使用M级纠错，容纳更多数据，增大尺寸提高扫描率）
+                    // 生成二维码（优化尺寸，使用M级纠错）
                     qrCodeInstances[index] = new QRCode(container, {
                         text: url,
-                        width: 256,
-                        height: 256,
+                        width: 180,
+                        height: 180,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.M
