@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号管理 - 野百灵餐厅</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .add-account-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .accounts-list {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .account-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .account-meta {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-admin {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .hint {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #92400e;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="admin.html" class="logo">🍴 野百灵餐厅管理后台</a>
+        <div class="user-info">
+            <span id="currentUserName"></span>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>👥 账号管理</h1>
+            <p>添加和管理后台登录账号</p>
+        </div>
+
+        <div class="add-account-card">
+            <div class="form-title">➕ 添加新账号</div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="newUsername" placeholder="输入用户名">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="newPassword" placeholder="输入密码">
+            </div>
+            <div class="hint">
+                💡 <strong>提示：</strong>新添加的账号拥有完整的后台管理权限，可以查看所有数据和管理门店。
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="addAccount()">添加账号</button>
+            </div>
+        </div>
+
+        <div class="accounts-list">
+            <div class="form-title">📋 账号列表</div>
+            <div id="accountsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        function checkAuth() {
+            const currentUser = JSON.parse(localStorage.getItem('ybl_current_user') || 'null');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('currentUserName').textContent = currentUser.username;
+        }
+
+        // 加载账号列表
+        function loadAccounts() {
+            const accounts = JSON.parse(localStorage.getItem('ybl_accounts') || '[]');
+            const currentUser = JSON.parse(localStorage.getItem('ybl_current_user') || 'null');
+            const container = document.getElementById('accountsList');
+
+            container.innerHTML = accounts.map((account, index) => {
+                const isCurrentUser = currentUser && account.username === currentUser.username;
+                const createdDate = new Date(account.createdAt).toLocaleString('zh-CN');
+
+                return `
+                    <div class="account-item">
+                        <div class="account-info">
+                            <div class="account-name">
+                                ${account.username}
+                                ${account.role === 'admin' ? '<span class="badge badge-admin">管理员</span>' : ''}
+                                ${isCurrentUser ? '<span class="badge" style="background:#10b981;color:white;">当前账号</span>' : ''}
+                            </div>
+                            <div class="account-meta">创建时间：${createdDate}</div>
+                        </div>
+                        ${!isCurrentUser && account.username !== 'admin' ?
+                            `<button class="btn btn-danger" onclick="deleteAccount(${index})">删除</button>` :
+                            ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 添加账号
+        function addAccount() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+
+            if (!username || !password) {
+                alert('❌ 请输入用户名和密码');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('❌ 密码至少6位');
+                return;
+            }
+
+            const accounts = JSON.parse(localStorage.getItem('ybl_accounts') || '[]');
+
+            // 检查用户名是否已存在
+            if (accounts.some(acc => acc.username === username)) {
+                alert('❌ 用户名已存在');
+                return;
+            }
+
+            accounts.push({
+                username: username,
+                password: password,
+                role: 'admin',
+                createdAt: new Date().toISOString()
+            });
+
+            localStorage.setItem('ybl_accounts', JSON.stringify(accounts));
+            alert(`✅ 账号添加成功！\n用户名：${username}`);
+
+            // 清空表单
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+
+            loadAccounts();
+        }
+
+        // 删除账号
+        function deleteAccount(index) {
+            if (!confirm('⚠️ 确定要删除这个账号吗？')) {
+                return;
+            }
+
+            const accounts = JSON.parse(localStorage.getItem('ybl_accounts') || '[]');
+            accounts.splice(index, 1);
+            localStorage.setItem('ybl_accounts', JSON.stringify(accounts));
+
+            alert('✅ 账号已删除');
+            loadAccounts();
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('ybl_current_user');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // 页面加载
+        window.addEventListener('load', () => {
+            checkAuth();
+            loadAccounts();
+        });
+    </script>
+</body>
+</html>

@@ -129,12 +129,35 @@
             font-size: 14px;
             line-height: 1.5;
         }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo">🍴 野百灵餐厅管理后台</div>
-        <div style="color: #666;">管理员您好！</div>
+        <div class="user-info">
+            <span style="color: #666;" id="currentUserName"></span>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
     </div>
 
     <div class="container">
@@ -186,12 +209,37 @@
                 <div class="menu-title">二维码生成</div>
                 <div class="menu-desc">为每张桌子生成专属二维码</div>
             </a>
+
+            <a href="accounts.html" class="menu-item">
+                <div class="menu-icon">👥</div>
+                <div class="menu-title">账号管理</div>
+                <div class="menu-desc">添加和管理后台登录账号</div>
+            </a>
         </div>
     </div>
 
     <script>
+        // 检查登录状态
+        function checkAuth() {
+            const currentUser = JSON.parse(localStorage.getItem('ybl_current_user') || 'null');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('currentUserName').textContent = '欢迎，' + currentUser.username;
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('ybl_current_user');
+                window.location.href = 'index.html';
+            }
+        }
+
         // 加载统计数据
         window.addEventListener('load', () => {
+            checkAuth();
             const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
             const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
 
