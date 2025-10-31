@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>野百灵餐厅 - 管理后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .welcome-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .welcome-card h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .welcome-card p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-item {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .menu-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .menu-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .menu-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🍴 野百灵餐厅管理后台</div>
+        <div style="color: #666;">管理员您好！</div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>欢迎回来！👋</h1>
+            <p>从这里开始管理您的餐厅问卷系统</p>
+        </div>
+
+        <!-- 数据统计 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🏪</div>
+                <div class="stat-number" id="totalStores">0</div>
+                <div class="stat-label">门店总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number" id="totalTables">0</div>
+                <div class="stat-label">桌位总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-number" id="totalAnswers">0</div>
+                <div class="stat-label">收到反馈</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-number" id="avgRating">0</div>
+                <div class="stat-label">平均评分</div>
+            </div>
+        </div>
+
+        <!-- 功能菜单 -->
+        <div class="menu-grid">
+            <a href="stores.html" class="menu-item">
+                <div class="menu-icon">🏪</div>
+                <div class="menu-title">门店管理</div>
+                <div class="menu-desc">添加门店、设置桌位数量、编辑门店信息</div>
+            </a>
+
+            <a href="data.html" class="menu-item">
+                <div class="menu-icon">📊</div>
+                <div class="menu-title">数据统计</div>
+                <div class="menu-desc">查看顾客反馈、分析数据、导出报表</div>
+            </a>
+
+            <a href="qrcode.html" class="menu-item">
+                <div class="menu-icon">📱</div>
+                <div class="menu-title">二维码生成</div>
+                <div class="menu-desc">为每张桌子生成专属二维码</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 加载统计数据
+        window.addEventListener('load', () => {
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+
+            // 计算桌位总数
+            let totalTables = 0;
+            stores.forEach(store => {
+                totalTables += (store.tableEnd - store.tableStart + 1);
+            });
+
+            // 计算平均评分
+            let totalRating = 0;
+            let ratingCount = 0;
+            answers.forEach(a => {
+                if (a.rating) {
+                    totalRating += a.rating;
+                    ratingCount++;
+                }
+            });
+            const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0;
+
+            document.getElementById('totalStores').textContent = stores.length;
+            document.getElementById('totalTables').textContent = totalTables;
+            document.getElementById('totalAnswers').textContent = answers.length;
+            document.getElementById('avgRating').textContent = avgRating;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>门店管理 - 野百灵餐厅</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .add-store-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .stores-list {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .store-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .store-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .store-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .store-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .hint {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="admin.html" class="logo">🍴 野百灵餐厅管理后台</a>
+        <div style="color: #666;">门店管理</div>
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>🏪 门店管理</h1>
+            <p>在这里添加您的门店和设置桌位编号</p>
+        </div>
+
+        <!-- 添加门店表单 -->
+        <div class="add-store-card">
+            <div class="form-title">➕ 添加新门店</div>
+            <div class="form-group">
+                <label>门店名称</label>
+                <input type="text" id="storeName" placeholder="例如：朝阳店、三里屯店">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>桌号开始</label>
+                    <input type="number" id="tableStart" placeholder="例如：1" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>桌号结束</label>
+                    <input type="number" id="tableEnd" placeholder="例如：20" min="1">
+                </div>
+            </div>
+            <div class="hint">
+                💡 <strong>提示：</strong>比如您的门店有20张桌子，桌号从1到20，那么就填写"桌号开始：1"，"桌号结束：20"。系统会自动为每张桌子生成独立的二维码。
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="addStore()">添加门店</button>
+            </div>
+        </div>
+
+        <!-- 门店列表 -->
+        <div class="stores-list">
+            <div class="form-title">📋 门店列表</div>
+            <div id="storesList"></div>
+        </div>
+    </div>
+
+    <script>
+        // 加载门店列表
+        function loadStores() {
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const container = document.getElementById('storesList');
+
+            if (stores.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏪</div>
+                        <div>还没有添加门店，点击上方按钮添加第一个门店吧！</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = stores.map((store, index) => {
+                const tableCount = store.tableEnd - store.tableStart + 1;
+                return `
+                    <div class="store-item">
+                        <div class="store-header">
+                            <div class="store-name">${store.name}</div>
+                            <button class="btn btn-danger" onclick="deleteStore(${index})">删除</button>
+                        </div>
+                        <div class="store-info">📋 桌位范围：${store.tableStart} - ${store.tableEnd} 号</div>
+                        <div class="store-info">🪑 桌位总数：${tableCount} 张</div>
+                        <div class="store-info">📅 创建时间：${new Date(store.createdAt).toLocaleString('zh-CN')}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 添加门店
+        function addStore() {
+            const name = document.getElementById('storeName').value.trim();
+            const tableStart = parseInt(document.getElementById('tableStart').value);
+            const tableEnd = parseInt(document.getElementById('tableEnd').value);
+
+            if (!name) {
+                alert('❌ 请输入门店名称');
+                return;
+            }
+
+            if (!tableStart || !tableEnd) {
+                alert('❌ 请输入桌号范围');
+                return;
+            }
+
+            if (tableStart > tableEnd) {
+                alert('❌ 桌号开始不能大于桌号结束');
+                return;
+            }
+
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+
+            const newStore = {
+                id: Date.now(),
+                name: name,
+                tableStart: tableStart,
+                tableEnd: tableEnd,
+                createdAt: new Date().toISOString()
+            };
+
+            stores.push(newStore);
+            localStorage.setItem('ybl_stores', JSON.stringify(stores));
+
+            alert(`✅ 成功添加门店：${name}\n📋 桌位：${tableStart}-${tableEnd}号（共${tableEnd - tableStart + 1}张）`);
+
+            // 清空表单
+            document.getElementById('storeName').value = '';
+            document.getElementById('tableStart').value = '1';
+            document.getElementById('tableEnd').value = '';
+
+            // 刷新列表
+            loadStores();
+        }
+
+        // 删除门店
+        function deleteStore(index) {
+            if (!confirm('⚠️ 确定要删除这个门店吗？删除后该门店的所有数据将无法恢复！')) {
+                return;
+            }
+
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            stores.splice(index, 1);
+            localStorage.setItem('ybl_stores', JSON.stringify(stores));
+
+            alert('✅ 门店已删除');
+            loadStores();
+        }
+
+        // 页面加载时显示列表
+        window.addEventListener('load', loadStores);
+    </script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维码生成 - 野百灵餐厅</title>
+    <!-- 引入QRCode.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .select-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .qrcode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .qrcode-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .qrcode-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .qrcode-container {
+            margin: 15px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .table-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .qrcode-url {
+            font-size: 11px;
+            color: #999;
+            margin-top: 10px;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+
+        .download-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #5568d3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .hint {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="admin.html" class="logo">🍴 野百灵餐厅管理后台</a>
+        <div style="color: #666;">二维码生成</div>
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>📱 二维码生成</h1>
+            <p>为每张桌子生成专属二维码</p>
+        </div>
+
+        <!-- 选择门店 -->
+        <div class="select-card">
+            <div class="form-group">
+                <label>选择门店</label>
+                <select id="storeSelect" onchange="selectStore()">
+                    <option value="">-- 请选择门店 --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>问卷页面网址</label>
+                <input type="text" id="surveyUrl" placeholder="例如：https://你的用户名.github.io/仓库名/survey.html">
+            </div>
+
+            <div class="hint">
+                💡 <strong>使用说明：</strong><br>
+                1️⃣ 选择要生成二维码的门店<br>
+                2️⃣ 填写你部署后的问卷页面网址（后面会教你怎么获取）<br>
+                3️⃣ 点击"生成二维码"，系统会为该门店的所有桌子生成二维码<br>
+                4️⃣ 右键点击二维码可以"图片另存为"保存到电脑<br>
+                5️⃣ 打印二维码并放在对应的桌子上
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="generateQRCodes()">✨ 生成二维码</button>
+            </div>
+        </div>
+
+        <!-- 二维码展示区 -->
+        <div id="qrcodeArea"></div>
+    </div>
+
+    <script>
+        // 加载门店列表
+        function loadStores() {
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const select = document.getElementById('storeSelect');
+
+            stores.forEach(store => {
+                const option = document.createElement('option');
+                option.value = JSON.stringify(store);
+                option.textContent = `${store.name} (${store.tableStart}-${store.tableEnd}号桌)`;
+                select.appendChild(option);
+            });
+        }
+
+        let selectedStore = null;
+
+        // 选择门店
+        function selectStore() {
+            const select = document.getElementById('storeSelect');
+            if (select.value) {
+                selectedStore = JSON.parse(select.value);
+            } else {
+                selectedStore = null;
+            }
+        }
+
+        // 生成二维码
+        function generateQRCodes() {
+            if (!selectedStore) {
+                alert('❌ 请先选择门店');
+                return;
+            }
+
+            const surveyUrl = document.getElementById('surveyUrl').value.trim();
+            if (!surveyUrl) {
+                alert('❌ 请填写问卷页面网址');
+                return;
+            }
+
+            const area = document.getElementById('qrcodeArea');
+            area.innerHTML = '<div class="qrcode-grid" id="qrcodeGrid"></div>';
+            const grid = document.getElementById('qrcodeGrid');
+
+            // 为每个桌号生成二维码
+            for (let i = selectedStore.tableStart; i <= selectedStore.tableEnd; i++) {
+                const qrcodeItem = document.createElement('div');
+                qrcodeItem.className = 'qrcode-item';
+
+                const tableLabel = document.createElement('div');
+                tableLabel.className = 'table-label';
+                tableLabel.textContent = `${selectedStore.name} - ${i}号桌`;
+
+                const qrcodeContainer = document.createElement('div');
+                qrcodeContainer.className = 'qrcode-container';
+                qrcodeContainer.id = `qrcode-${i}`;
+
+                const url = `${surveyUrl}?store=${encodeURIComponent(selectedStore.name)}&table=${i}`;
+
+                const urlDisplay = document.createElement('div');
+                urlDisplay.className = 'qrcode-url';
+                urlDisplay.textContent = url;
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = '💾 下载二维码';
+                downloadBtn.onclick = () => downloadQRCode(i, selectedStore.name);
+
+                qrcodeItem.appendChild(tableLabel);
+                qrcodeItem.appendChild(qrcodeContainer);
+                qrcodeItem.appendChild(urlDisplay);
+                qrcodeItem.appendChild(downloadBtn);
+                grid.appendChild(qrcodeItem);
+
+                // 生成二维码
+                new QRCode(qrcodeContainer, {
+                    text: url,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+
+            alert(`✅ 成功生成 ${selectedStore.tableEnd - selectedStore.tableStart + 1} 个二维码！`);
+        }
+
+        // 下载二维码
+        function downloadQRCode(tableNum, storeName) {
+            const container = document.getElementById(`qrcode-${tableNum}`);
+            const canvas = container.querySelector('canvas');
+
+            if (canvas) {
+                const url = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${storeName}_${tableNum}号桌.png`;
+                link.click();
+            }
+        }
+
+        // 页面加载时加载门店
+        window.addEventListener('load', loadStores);
+    </script>
+</body>
+</html>
