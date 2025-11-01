@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>野百灵用餐反馈 - 苗族蝴蝶</title>
+    <title>野百灵用餐反馈</title>
     <style>
         * {
             margin: 0;
@@ -84,20 +84,7 @@
         }
 
         .store-info {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(59, 130, 246, 0.95);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: none;
+            display: none !important;
         }
 
         .store-info.show {
@@ -866,8 +853,7 @@
     </style>
 </head>
 <body>
-    <!-- 门店和桌号信息显示 -->
-    <div class="store-info" id="storeInfoTag"></div>
+    <!-- 门店和桌号信息已隐藏 -->
 
     <!-- 轮播页面 -->
     <div class="carousel-container" id="carousel">
@@ -1368,7 +1354,7 @@
                 // 不再自动刷新，停留在感谢页面
             } catch (error) {
                 console.error('❌ 保存失败:', error);
-                alert(`❌ 保存失败: ${error.message}`);
+                // 静默处理错误，不显示弹窗
             }
         }
     </script>
