@@ -4,26 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>门店管理 - 野百灵餐厅</title>
-    <script src="auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
             color: white;
         }
-        .main-container { max-width: 1400px; margin: 0 auto; padding: 40px 30px; }
-        .page-header { margin-bottom: 40px; text-align: center; }
-        .page-title {
-            font-size: 48px; font-weight: 800;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; margin-bottom: 12px;
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
         }
-        .page-subtitle { font-size: 16px; color: rgba(255, 255, 255, 0.7); }
+
+        .page-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
 
         .card {
             background: rgba(255, 255, 255, 0.08);
@@ -33,16 +53,21 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(147, 197, 253, 0.2);
             margin-bottom: 30px;
         }
+
         .card-title {
             font-size: 24px;
             font-weight: bold;
+            color: white;
             margin-bottom: 30px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .form-section { margin-bottom: 25px; }
+        .form-section {
+            margin-bottom: 25px;
+        }
+
         .form-label {
             display: block;
             color: rgba(255, 255, 255, 0.9);
@@ -50,6 +75,7 @@
             margin-bottom: 12px;
             font-size: 15px;
         }
+
         .form-input {
             width: 100%;
             padding: 16px 20px;
@@ -60,11 +86,16 @@
             color: white;
             transition: all 0.3s;
         }
-        .form-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
         .form-input:focus {
             outline: none;
             border-color: #3b82f6;
             background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
         .btn {
@@ -76,32 +107,24 @@
             cursor: pointer;
             transition: all 0.3s;
         }
+
         .btn-primary {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
+
         .btn-primary:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
         }
-        .btn-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-        }
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-        }
+
         .btn-danger {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
             padding: 10px 20px;
             font-size: 14px;
-        }
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 13px;
         }
 
         .store-item {
@@ -112,6 +135,7 @@
             margin-bottom: 25px;
             transition: all 0.3s;
         }
+
         .store-item:hover {
             border-color: #3b82f6;
             box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
@@ -123,35 +147,27 @@
             align-items: center;
             margin-bottom: 20px;
         }
+
         .store-name {
             font-size: 24px;
             font-weight: bold;
             color: white;
         }
-        .store-actions {
-            display: flex;
-            gap: 10px;
+
+        .table-section {
+            margin-top: 20px;
         }
 
-        .table-section { margin-top: 20px; }
         .table-section-title {
             font-size: 16px;
             font-weight: 600;
             color: rgba(255, 255, 255, 0.9);
             margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .batch-actions {
-            display: flex;
-            gap: 10px;
         }
 
         .table-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -162,44 +178,20 @@
             border-radius: 12px;
             padding: 15px;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
             transition: all 0.3s;
         }
+
         .table-item:hover {
             background: rgba(59, 130, 246, 0.25);
             border-color: #3b82f6;
         }
 
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
         .table-name {
             font-size: 16px;
             font-weight: 600;
             color: white;
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-icon {
-            background: rgba(139, 92, 246, 0.8);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-icon:hover {
-            background: #8b5cf6;
-            transform: translateY(-2px);
         }
 
         .btn-delete-table {
@@ -210,8 +202,66 @@
             padding: 4px 10px;
             font-size: 12px;
             cursor: pointer;
+            transition: all 0.3s;
         }
-        .btn-delete-table:hover { background: #ef4444; }
+
+        .btn-delete-table:hover {
+            background: #ef4444;
+        }
+
+        .add-table-section {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-top: 15px;
+        }
+
+        .add-table-input {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .btn-add-table {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add-table:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* 二维码相关样式 */
+        .table-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
         .qrcode-section {
             display: none;
@@ -223,33 +273,54 @@
             border-radius: 8px;
             margin-top: 10px;
         }
-        .qrcode-section.show { display: flex; }
+
+        .qrcode-section.show {
+            display: flex;
+        }
+
         .qrcode-container {
             background: white;
             padding: 15px;
             border-radius: 8px;
         }
 
-        .add-table-section {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-            margin-top: 15px;
-        }
-        .add-table-input {
-            flex: 1;
-            max-width: 300px;
+        .btn-qr {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: rgba(255, 255, 255, 0.6);
+        .btn-qr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
         }
-        .empty-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+
+        .btn-download {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 6px;
         }
     </style>
 </head>
@@ -260,7 +331,7 @@
     <div class="main-container">
         <div class="page-header">
             <h1 class="page-title">🏪 门店管理</h1>
-            <p class="page-subtitle">管理门店、桌位和二维码</p>
+            <p class="page-subtitle">管理您的门店和桌位信息</p>
         </div>
 
         <!-- 添加门店 -->
@@ -269,10 +340,12 @@
                 <span>➕</span>
                 添加新门店
             </h2>
+
             <div class="form-section">
                 <label class="form-label">门店名称</label>
                 <input type="text" id="newStoreName" class="form-input" placeholder="例如：朝阳店、三里屯店">
             </div>
+
             <button class="btn btn-primary" onclick="addStore()">✨ 添加门店</button>
         </div>
 
@@ -287,11 +360,6 @@
     </div>
 
     <script>
-        const qrCodeInstances = {};
-
-        // ⚙️ 网站配置：部署到 GitHub Pages 后，修改这里的网址
-        const SITE_URL = localStorage.getItem('ybl_site_url') || 'https://a17380648227-creator.github.io/yebailing-survey';
-
         // 加载门店列表
         function loadStores() {
             const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
@@ -315,31 +383,11 @@
                     <div class="store-item">
                         <div class="store-header">
                             <div class="store-name">${store.name}</div>
-                            <div class="store-actions">
-                                <button class="btn btn-success btn-small" onclick="editStore(${storeIndex})">
-                                    ✏️ 编辑
-                                </button>
-                                <button class="btn btn-danger" onclick="deleteStore(${storeIndex})">
-                                    🗑️ 删除
-                                </button>
-                            </div>
+                            <button class="btn btn-danger" onclick="deleteStore(${storeIndex})">🗑️ 删除门店</button>
                         </div>
 
                         <div class="table-section">
-                            <div class="table-section-title">
-                                <span>📋 桌位列表（${tableCount} 张）</span>
-                                <div class="batch-actions">
-                                    <button class="btn btn-success btn-small" onclick="batchAddTables(${storeIndex})">
-                                        ⚡ 批量添加
-                                    </button>
-                                    ${tableCount > 0 ? `
-                                    <button class="btn btn-primary btn-small" onclick="batchDownloadQR(${storeIndex})">
-                                        📦 批量下载二维码
-                                    </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-
+                            <div class="table-section-title">📋 桌位列表（${tableCount} 张）</div>
                             ${store.tables && store.tables.length > 0 ? `
                                 <div class="table-grid">
                                     ${store.tables.map((table, tableIndex) => `
@@ -347,19 +395,13 @@
                                             <div class="table-header">
                                                 <span class="table-name">${table}</span>
                                                 <div class="table-actions">
-                                                    <button class="btn-icon" onclick="generateQRCode('${store.name}', '${table}', ${storeIndex}, ${tableIndex})">
-                                                        📱 生成
-                                                    </button>
-                                                    <button class="btn-delete-table" onclick="deleteTable(${storeIndex}, ${tableIndex})">
-                                                        ✕
-                                                    </button>
+                                                    <button class="btn-qr" onclick="generateQRCode('${store.name}', '${table}', ${storeIndex}, ${tableIndex})">📱 生成二维码</button>
+                                                    <button class="btn-delete-table" onclick="deleteTable(${storeIndex}, ${tableIndex})">✕</button>
                                                 </div>
                                             </div>
                                             <div class="qrcode-section" id="qr-section-${storeIndex}-${tableIndex}">
                                                 <div class="qrcode-container" id="qrcode-${storeIndex}-${tableIndex}"></div>
-                                                <button class="btn btn-success btn-small" onclick="downloadQRCode('${store.name}', '${table}', ${storeIndex}, ${tableIndex})">
-                                                    💾 下载
-                                                </button>
+                                                <button class="btn-download" onclick="downloadQRCode('${store.name}', '${table}', ${storeIndex}, ${tableIndex})">💾 下载二维码</button>
                                             </div>
                                         </div>
                                     `).join('')}
@@ -374,7 +416,7 @@
                                            placeholder="输入桌号，如：A1, VIP1"
                                            style="padding: 12px 16px;">
                                 </div>
-                                <button class="btn btn-success btn-small" onclick="addTable(${storeIndex})">
+                                <button class="btn-add-table" onclick="addTable(${storeIndex})">
                                     ➕ 添加桌号
                                 </button>
                             </div>
@@ -413,32 +455,6 @@
             loadStores();
         }
 
-        // 编辑门店
-        function editStore(index) {
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
-            const newName = prompt('请输入新的门店名称：', stores[index].name);
-
-            if (newName && newName.trim()) {
-                stores[index].name = newName.trim();
-                localStorage.setItem('ybl_stores', JSON.stringify(stores));
-                loadStores();
-            }
-        }
-
-        // 删除门店
-        function deleteStore(index) {
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
-            const storeName = stores[index].name;
-
-            if (!confirm(`⚠️ 确定要删除门店"${storeName}"吗？删除后该门店的所有数据将无法恢复！`)) {
-                return;
-            }
-
-            stores.splice(index, 1);
-            localStorage.setItem('ybl_stores', JSON.stringify(stores));
-            loadStores();
-        }
-
         // 添加桌号
         function addTable(storeIndex) {
             const inputId = `newTable_${storeIndex}`;
@@ -468,43 +484,6 @@
             loadStores();
         }
 
-        // 批量添加桌号
-        function batchAddTables(storeIndex) {
-            const prefix = prompt('请输入桌号前缀（可选，如：A、VIP）：', '');
-            const start = prompt('请输入起始桌号：', '1');
-            const end = prompt('请输入结束桌号：', '20');
-
-            if (start === null || end === null) return;
-
-            const startNum = parseInt(start);
-            const endNum = parseInt(end);
-
-            if (isNaN(startNum) || isNaN(endNum) || startNum > endNum) {
-                alert('❌ 请输入有效的桌号范围');
-                return;
-            }
-
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
-
-            if (!stores[storeIndex].tables) {
-                stores[storeIndex].tables = [];
-            }
-
-            let addedCount = 0;
-            for (let i = startNum; i <= endNum; i++) {
-                const tableName = prefix ? `${prefix}${i}` : String(i);
-                if (!stores[storeIndex].tables.includes(tableName)) {
-                    stores[storeIndex].tables.push(tableName);
-                    addedCount++;
-                }
-            }
-
-            localStorage.setItem('ybl_stores', JSON.stringify(stores));
-
-            alert(`✅ 成功添加 ${addedCount} 个桌号`);
-            loadStores();
-        }
-
         // 删除桌号
         function deleteTable(storeIndex, tableIndex) {
             const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
@@ -516,8 +495,27 @@
 
             stores[storeIndex].tables.splice(tableIndex, 1);
             localStorage.setItem('ybl_stores', JSON.stringify(stores));
+
             loadStores();
         }
+
+        // 删除门店
+        function deleteStore(index) {
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const storeName = stores[index].name;
+
+            if (!confirm(`⚠️ 确定要删除门店"${storeName}"吗？删除后该门店的所有数据将无法恢复！`)) {
+                return;
+            }
+
+            stores.splice(index, 1);
+            localStorage.setItem('ybl_stores', JSON.stringify(stores));
+
+            loadStores();
+        }
+
+        // 二维码实例存储
+        const qrCodeInstances = {};
 
         // 生成二维码
         function generateQRCode(storeName, tableName, storeIndex, tableIndex) {
@@ -544,8 +542,10 @@
                     delete qrCodeInstances[key];
                 }
 
-                // 构造问卷URL
-                const url = `${SITE_URL}/survey.html?s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`;
+                // 构造问卷URL（需要根据你的实际部署地址修改）
+                // 如果部署到 GitHub Pages: https://用户名.github.io/仓库名/survey.html
+                const baseUrl = window.location.origin + window.location.pathname.replace('stores.html', 'survey.html');
+                const url = `${baseUrl}?s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`;
 
                 // 生成二维码
                 qrCodeInstances[key] = new QRCode(container, {
@@ -579,72 +579,6 @@
             } else {
                 alert('❌ 请先生成二维码');
             }
-        }
-
-        // 批量下载二维码
-        async function batchDownloadQR(storeIndex) {
-            if (typeof JSZip === 'undefined') {
-                alert('❌ JSZip库未加载，无法批量下载');
-                return;
-            }
-
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
-            const store = stores[storeIndex];
-
-            if (!store.tables || store.tables.length === 0) {
-                alert('❌ 该门店没有桌位');
-                return;
-            }
-
-            if (!confirm(`确定要批量生成并下载 ${store.tables.length} 个二维码吗？`)) {
-                return;
-            }
-
-            const zip = new JSZip();
-
-            // 创建一个临时容器
-            const tempContainer = document.createElement('div');
-            tempContainer.style.display = 'none';
-            document.body.appendChild(tempContainer);
-
-            for (const tableName of store.tables) {
-                const qrContainer = document.createElement('div');
-                tempContainer.appendChild(qrContainer);
-
-                // 生成二维码
-                const url = `${SITE_URL}/survey.html?s=${encodeURIComponent(store.name)}&t=${encodeURIComponent(tableName)}`;
-                const qr = new QRCode(qrContainer, {
-                    text: url,
-                    width: 300,
-                    height: 300,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-
-                // 等待二维码生成
-                await new Promise(resolve => setTimeout(resolve, 100));
-
-                // 获取canvas并转换为blob
-                const canvas = qrContainer.querySelector('canvas');
-                if (canvas) {
-                    const dataUrl = canvas.toDataURL('image/png');
-                    const base64Data = dataUrl.split(',')[1];
-                    zip.file(`${store.name}_${tableName}.png`, base64Data, {base64: true});
-                }
-            }
-
-            // 清理临时容器
-            document.body.removeChild(tempContainer);
-
-            // 生成ZIP并下载
-            const content = await zip.generateAsync({type: 'blob'});
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(content);
-            link.download = `${store.name}_二维码.zip`;
-            link.click();
-
-            alert(`✅ 成功生成 ${store.tables.length} 个二维码！`);
         }
 
         // 页面加载时显示列表

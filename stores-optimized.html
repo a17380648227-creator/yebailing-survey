@@ -289,9 +289,6 @@
     <script>
         const qrCodeInstances = {};
 
-        // ⚙️ 网站配置：部署到 GitHub Pages 后，修改这里的网址
-        const SITE_URL = localStorage.getItem('ybl_site_url') || 'https://a17380648227-creator.github.io/yebailing-survey';
-
         // 加载门店列表
         function loadStores() {
             const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
@@ -545,7 +542,8 @@
                 }
 
                 // 构造问卷URL
-                const url = `${SITE_URL}/survey.html?s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`;
+                const baseUrl = window.location.origin + window.location.pathname.replace('stores.html', 'survey.html');
+                const url = `${baseUrl}?s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`;
 
                 // 生成二维码
                 qrCodeInstances[key] = new QRCode(container, {
@@ -601,6 +599,7 @@
             }
 
             const zip = new JSZip();
+            const baseUrl = window.location.origin + window.location.pathname.replace('stores.html', 'survey.html');
 
             // 创建一个临时容器
             const tempContainer = document.createElement('div');
@@ -612,7 +611,7 @@
                 tempContainer.appendChild(qrContainer);
 
                 // 生成二维码
-                const url = `${SITE_URL}/survey.html?s=${encodeURIComponent(store.name)}&t=${encodeURIComponent(tableName)}`;
+                const url = `${baseUrl}?s=${encodeURIComponent(store.name)}&t=${encodeURIComponent(tableName)}`;
                 const qr = new QRCode(qrContainer, {
                     text: url,
                     width: 300,

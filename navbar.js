@@ -1,13 +1,21 @@
 // 统一导航栏组件
 function createNavbar(currentPage) {
-    const currentUser = JSON.parse(localStorage.getItem('ybl_current_user') || 'null');
-    const username = currentUser ? currentUser.username : '游客';
+    // 使用新的认证系统获取用户信息
+    const session = localStorage.getItem('ybl_login_session');
+    let username = '游客';
+    if (session) {
+        try {
+            const loginData = JSON.parse(session);
+            username = loginData.username;
+        } catch (e) {}
+    }
 
     const navItems = [
         { name: '首页', url: 'admin.html', icon: '🏠' },
         { name: '门店管理', url: 'stores.html', icon: '🏪' },
+        { name: '问卷编辑', url: 'questionnaire-editor.html', icon: '📝' },
         { name: '数据统计', url: 'data.html', icon: '📊' },
-        { name: '二维码生成', url: 'qrcode.html', icon: '📱' },
+        { name: '顾客反馈', url: 'feedbacks.html', icon: '💬' },
         { name: '账号管理', url: 'accounts.html', icon: '👥' }
     ];
 
@@ -187,22 +195,16 @@ const navbarStyles = `
     </style>
 `;
 
-// 退出登录函数
+// 退出登录函数（与auth.js协同）
 function logout() {
     if (confirm('确定要退出登录吗？')) {
-        localStorage.removeItem('ybl_current_user');
-        window.location.href = 'index.html';
+        localStorage.removeItem('ybl_login_session');
+        window.location.href = 'login.html';
     }
 }
 
 // 插入导航栏
 function insertNavbar(currentPage) {
-    const currentUser = JSON.parse(localStorage.getItem('ybl_current_user') || 'null');
-    if (!currentUser && currentPage !== 'index.html') {
-        window.location.href = 'index.html';
-        return;
-    }
-
     document.head.insertAdjacentHTML('beforeend', navbarStyles);
     document.body.insertAdjacentHTML('afterbegin', createNavbar(currentPage));
 }

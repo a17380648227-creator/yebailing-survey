@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>二维码生成 - 野百灵餐厅</title>
+    <script src="auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -415,8 +416,6 @@
 
                     // 显示二维码区域
                     display.classList.add('show');
-
-                    alert(`✅ 成功生成 ${selectedStore.name} - ${tableName} 的二维码！`);
                 } catch (error) {
                     alert(`❌ 生成二维码失败: ${error.message}`);
                 }
@@ -433,7 +432,6 @@
                     link.href = url;
                     link.download = `${selectedStore.name}_${tableName}.png`;
                     link.click();
-                    alert(`✅ 二维码已下载：${selectedStore.name}_${tableName}.png`);
                 } else {
                     alert('❌ 请先生成二维码');
                 }

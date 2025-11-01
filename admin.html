@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理后台 - 野百灵餐厅</title>
+    <script src="auth.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -88,11 +89,11 @@
                 <div class="stat-number" id="totalTables">0</div>
                 <div class="stat-label">桌位总数</div>
             </div>
-            <div class="stat-card">
+            <a href="feedbacks.html" class="stat-card" style="text-decoration: none; color: inherit; display: block;">
                 <div class="stat-icon">💬</div>
                 <div class="stat-number" id="totalAnswers">0</div>
                 <div class="stat-label">收到反馈</div>
-            </div>
+            </a>
             <div class="stat-card">
                 <div class="stat-icon">⭐</div>
                 <div class="stat-number" id="avgRating">0</div>
@@ -104,17 +105,27 @@
             <a href="stores.html" class="menu-item">
                 <div class="menu-icon">🏪</div>
                 <div class="menu-title">门店管理</div>
-                <div class="menu-desc">添加门店、自定义桌位编号、管理门店信息</div>
+                <div class="menu-desc">添加门店、管理桌位、生成二维码</div>
+            </a>
+            <a href="questionnaire-editor.html" class="menu-item">
+                <div class="menu-icon">📝</div>
+                <div class="menu-title">问卷编辑</div>
+                <div class="menu-desc">自定义问卷问题、样式和轮播图</div>
             </a>
             <a href="data.html" class="menu-item">
                 <div class="menu-icon">📊</div>
                 <div class="menu-title">数据统计</div>
                 <div class="menu-desc">查看顾客反馈、分析数据、导出报表</div>
             </a>
-            <a href="qrcode.html" class="menu-item">
-                <div class="menu-icon">📱</div>
-                <div class="menu-title">二维码生成</div>
-                <div class="menu-desc">为每张桌子生成专属二维码、批量下载</div>
+            <a href="feedbacks.html" class="menu-item">
+                <div class="menu-icon">💬</div>
+                <div class="menu-title">顾客反馈</div>
+                <div class="menu-desc">查看、筛选、管理顾客反馈</div>
+            </a>
+            <a href="backup.html" class="menu-item">
+                <div class="menu-icon">💾</div>
+                <div class="menu-title">数据备份</div>
+                <div class="menu-desc">导出、导入、备份系统数据</div>
             </a>
             <a href="accounts.html" class="menu-item">
                 <div class="menu-icon">👥</div>

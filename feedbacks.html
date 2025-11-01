@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>顾客反馈 - 野百灵餐厅</title>
+    <script src="auth.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 40px 30px; }
+        .page-header { margin-bottom: 40px; text-align: center; }
+        .page-title {
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 12px;
+        }
+        .page-subtitle { font-size: 16px; color: rgba(255, 255, 255, 0.7); }
+
+        /* 筛选器 */
+        .filter-bar {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+        .filter-select option {
+            background: #1e293b;
+            color: white;
+        }
+        .btn-reset {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 25px;
+        }
+
+        /* 反馈卡片 */
+        .feedback-list { margin-bottom: 30px; }
+        .feedback-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            position: relative;
+        }
+        .feedback-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-pending { background: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .status-processing { background: rgba(251, 191, 36, 0.3); color: #fcd34d; }
+        .status-resolved { background: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .feedback-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .feedback-time {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .feedback-content { line-height: 1.8; }
+        .content-row {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .content-label {
+            font-weight: bold;
+            color: #60a5fa;
+            min-width: 100px;
+            margin-right: 15px;
+        }
+        .content-value { color: rgba(255, 255, 255, 0.9); flex: 1; }
+        .rating-stars {
+            color: #fbbf24;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+        .improvements-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: white;
+        }
+
+        /* 操作按钮 */
+        .feedback-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-status {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        .btn-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 40px;
+        }
+        .pagination-btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 197, 253, 0.2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+        .pagination-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .pagination-info {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .page-jump {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-input {
+            width: 60px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(147, 197, 253, 0.2);
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .empty-icon { font-size: 80px; margin-bottom: 20px; opacity: 0.5; }
+        .empty-text {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script src="navbar.js"></script>
+    <script>insertNavbar('feedbacks.html');</script>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">💬 顾客反馈</h1>
+            <p class="page-subtitle" id="totalInfo">加载中...</p>
+        </div>
+
+        <!-- 筛选器 -->
+        <div class="filter-bar">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label>门店筛选</label>
+                    <select class="filter-select" id="storeFilter" onchange="applyFilters()">
+                        <option value="">全部门店</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>评分筛选</label>
+                    <select class="filter-select" id="ratingFilter" onchange="applyFilters()">
+                        <option value="">全部评分</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5星</option>
+                        <option value="4">⭐⭐⭐⭐ 4星</option>
+                        <option value="3">⭐⭐⭐ 3星</option>
+                        <option value="2">⭐⭐ 2星</option>
+                        <option value="1">⭐ 1星</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>状态筛选</label>
+                    <select class="filter-select" id="statusFilter" onchange="applyFilters()">
+                        <option value="">全部状态</option>
+                        <option value="pending">未处理</option>
+                        <option value="processing">处理中</option>
+                        <option value="resolved">已解决</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>日期筛选</label>
+                    <input type="date" class="filter-input" id="dateFilter" onchange="applyFilters()">
+                </div>
+            </div>
+            <button class="btn-reset" onclick="resetFilters()">🔄 重置筛选</button>
+        </div>
+
+        <!-- 反馈列表 -->
+        <div id="feedbackList" class="feedback-list"></div>
+
+        <!-- 分页 -->
+        <div id="paginationContainer" class="pagination" style="display: none;">
+            <button class="pagination-btn" id="firstPageBtn" onclick="goToPage(1)">首页</button>
+            <button class="pagination-btn" id="prevBtn" onclick="previousPage()">上一页</button>
+            <span class="pagination-info" id="pageInfo">第 1 页 / 共 1 页</span>
+            <button class="pagination-btn" id="nextBtn" onclick="nextPage()">下一页</button>
+            <button class="pagination-btn" id="lastPageBtn" onclick="goToLastPage()">末页</button>
+            <div class="page-jump">
+                <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">跳转到</span>
+                <input type="number" class="page-input" id="pageInput" min="1" placeholder="1">
+                <button class="pagination-btn" onclick="jumpToPage()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PAGE_SIZE = 10;
+        let currentPage = 1;
+        let totalPages = 1;
+        let allFeedbacks = [];
+        let filteredFeedbacks = [];
+
+        // 状态标签
+        const STATUS_LABELS = {
+            'pending': '未处理',
+            'processing': '处理中',
+            'resolved': '已解决'
+        };
+
+        // 页面加载
+        window.addEventListener('load', () => {
+            loadFeedbacks();
+            loadStoreOptions();
+        });
+
+        // 加载门店选项
+        function loadStoreOptions() {
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const select = document.getElementById('storeFilter');
+            stores.forEach(store => {
+                const option = document.createElement('option');
+                option.value = store.name;
+                option.textContent = store.name;
+                select.appendChild(option);
+            });
+        }
+
+        // 加载反馈数据
+        function loadFeedbacks() {
+            allFeedbacks = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+
+            // 确保每个反馈都有状态字段
+            allFeedbacks = allFeedbacks.map((feedback, index) => {
+                if (!feedback.status) {
+                    feedback.status = 'pending';
+                    feedback.id = feedback.id || `feedback_${Date.now()}_${index}`;
+                }
+                return feedback;
+            });
+
+            // 保存更新后的数据
+            localStorage.setItem('ybl_answers', JSON.stringify(allFeedbacks));
+
+            // 按时间倒序
+            allFeedbacks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            applyFilters();
+        }
+
+        // 应用筛选
+        function applyFilters() {
+            const storeFilter = document.getElementById('storeFilter').value;
+            const ratingFilter = document.getElementById('ratingFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+
+            filteredFeedbacks = allFeedbacks.filter(feedback => {
+                if (storeFilter && feedback.store !== storeFilter) return false;
+                if (ratingFilter && feedback.rating !== parseInt(ratingFilter)) return false;
+                if (statusFilter && feedback.status !== statusFilter) return false;
+                if (dateFilter) {
+                    const feedbackDate = new Date(feedback.timestamp).toISOString().split('T')[0];
+                    if (feedbackDate !== dateFilter) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('totalInfo').textContent =
+                `共 ${allFeedbacks.length} 条反馈，筛选后 ${filteredFeedbacks.length} 条`;
+
+            totalPages = Math.ceil(filteredFeedbacks.length / PAGE_SIZE);
+            currentPage = 1;
+            renderPage(1);
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('storeFilter').value = '';
+            document.getElementById('ratingFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            applyFilters();
+        }
+
+        // 渲染页面
+        function renderPage(page) {
+            currentPage = page;
+            const container = document.getElementById('feedbackList');
+            const paginationContainer = document.getElementById('paginationContainer');
+
+            if (filteredFeedbacks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">暂无符合条件的反馈</div>
+                    </div>
+                `;
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            const startIndex = (page - 1) * PAGE_SIZE;
+            const endIndex = Math.min(startIndex + PAGE_SIZE, filteredFeedbacks.length);
+            const pageFeedbacks = filteredFeedbacks.slice(startIndex, endIndex);
+
+            container.innerHTML = pageFeedbacks.map(feedback =>
+                generateFeedbackCard(feedback)
+            ).join('');
+
+            if (totalPages > 1) {
+                paginationContainer.style.display = 'flex';
+                updatePaginationControls();
+            } else {
+                paginationContainer.style.display = 'none';
+            }
+        }
+
+        // 生成反馈卡片
+        function generateFeedbackCard(feedback) {
+            const stars = '⭐'.repeat(feedback.rating || 0);
+            const improvements = feedback.improvements || [];
+            const improvementTags = improvements.map(item =>
+                `<span class="tag">${item}</span>`
+            ).join('');
+
+            const statusClass = `status-${feedback.status || 'pending'}`;
+            const statusLabel = STATUS_LABELS[feedback.status] || '未处理';
+
+            return `
+                <div class="feedback-card">
+                    <div class="status-badge ${statusClass}">${statusLabel}</div>
+
+                    <div class="feedback-header">
+                        <div class="feedback-meta">
+                            <div class="meta-item">
+                                <span>🏪</span>
+                                <span>${feedback.store || '未知门店'}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>📋</span>
+                                <span>桌号 ${feedback.table || '未知'}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>👥</span>
+                                <span>${feedback.companion || '未知'}</span>
+                            </div>
+                        </div>
+                        <div class="feedback-time">
+                            ${feedback.date || feedback.timestamp || '未知时间'}
+                        </div>
+                    </div>
+
+                    <div class="feedback-content">
+                        <div class="content-row">
+                            <div class="content-label">评分：</div>
+                            <div class="content-value rating-stars">${stars} ${feedback.rating || 0}分</div>
+                        </div>
+                        ${improvements.length > 0 ? `
+                        <div class="content-row">
+                            <div class="content-label">需要改进：</div>
+                            <div class="content-value improvements-tags">${improvementTags}</div>
+                        </div>
+                        ` : ''}
+                        ${feedback.suggestions ? `
+                        <div class="content-row">
+                            <div class="content-label">建议：</div>
+                            <div class="content-value">${feedback.suggestions}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="feedback-actions">
+                        <button class="btn btn-status" onclick="changeStatus('${feedback.id}')">
+                            🔄 更改状态
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteFeedback('${feedback.id}')">
+                            🗑️ 删除
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 更改状态
+        function changeStatus(feedbackId) {
+            const statusOptions = ['pending', 'processing', 'resolved'];
+            const statusLabels = ['未处理', '处理中', '已解决'];
+
+            const choice = prompt(
+                '请选择新状态：\n1 - 未处理\n2 - 处理中\n3 - 已解决\n\n请输入数字：',
+                '2'
+            );
+
+            if (choice && choice >= '1' && choice <= '3') {
+                const newStatus = statusOptions[parseInt(choice) - 1];
+
+                const feedback = allFeedbacks.find(f => f.id === feedbackId);
+                if (feedback) {
+                    feedback.status = newStatus;
+                    localStorage.setItem('ybl_answers', JSON.stringify(allFeedbacks));
+                    applyFilters();
+                }
+            }
+        }
+
+        // 删除反馈
+        function deleteFeedback(feedbackId) {
+            if (!confirm('⚠️ 确定要删除这条反馈吗？\n此操作不可恢复！')) {
+                return;
+            }
+
+            const index = allFeedbacks.findIndex(f => f.id === feedbackId);
+            if (index !== -1) {
+                allFeedbacks.splice(index, 1);
+                localStorage.setItem('ybl_answers', JSON.stringify(allFeedbacks));
+                loadFeedbacks();
+            }
+        }
+
+        // 分页控制
+        function updatePaginationControls() {
+            document.getElementById('pageInfo').textContent =
+                `第 ${currentPage} 页 / 共 ${totalPages} 页`;
+            document.getElementById('pageInput').max = totalPages;
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('firstPageBtn').disabled = currentPage === 1;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            document.getElementById('lastPageBtn').disabled = currentPage === totalPages;
+        }
+
+        function previousPage() {
+            if (currentPage > 1) renderPage(currentPage - 1);
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) renderPage(currentPage + 1);
+        }
+
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages) renderPage(page);
+        }
+
+        function goToLastPage() {
+            renderPage(totalPages);
+        }
+
+        function jumpToPage() {
+            const page = parseInt(document.getElementById('pageInput').value);
+            if (page >= 1 && page <= totalPages) {
+                renderPage(page);
+            } else {
+                document.getElementById('pageInput').value = currentPage;
+            }
+        }
+
+        // 回车跳转
+        document.addEventListener('DOMContentLoaded', () => {
+            const pageInput = document.getElementById('pageInput');
+            if (pageInput) {
+                pageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') jumpToPage();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

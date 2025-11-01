@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问卷编辑器 - 野百灵餐厅</title>
+    <script src="auth.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 顶部操作栏 */
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* 问题列表面板 */
+        .questions-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            min-height: 400px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .question-item {
+            background: rgba(59, 130, 246, 0.15);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .question-item:hover {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: #3b82f6;
+            transform: translateX(5px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .question-title-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            flex: 1;
+        }
+
+        .question-type-badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-radio { background: #3b82f6; color: white; }
+        .badge-checkbox { background: #10b981; color: white; }
+        .badge-rating { background: #f59e0b; color: white; }
+        .badge-text { background: #8b5cf6; color: white; }
+
+        .question-subtitle {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+        }
+
+        .question-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .option-tag {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        /* 选项列表 */
+        .options-list {
+            margin-top: 15px;
+        }
+
+        .option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .option-item input {
+            flex: 1;
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(147, 197, 253, 0.2);
+        }
+
+        .modal-header {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        /* 问题类型选择器 */
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .type-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 16px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .type-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #3b82f6;
+        }
+
+        .type-card.selected {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .type-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .type-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .type-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 样式设置 */
+        .style-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .color-picker-group .form-group {
+            flex: 1;
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <script src="navbar.js"></script>
+    <script>insertNavbar('questionnaire-editor.html');</script>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">📝 问卷编辑器</h1>
+            <p class="page-subtitle">设计您的专属问卷</p>
+        </div>
+
+        <div class="top-actions">
+            <div></div>
+            <div style="display: flex; gap: 15px;">
+                <button class="btn btn-success" onclick="saveConfig()">💾 保存配置</button>
+                <button class="btn btn-primary" onclick="previewSurvey()">👁️ 预览问卷</button>
+            </div>
+        </div>
+
+        <!-- 问题列表 -->
+        <div class="questions-panel">
+            <div class="panel-header">
+                <div class="panel-title">📋 问题列表</div>
+                <button class="btn btn-primary btn-small" onclick="showAddQuestionModal()">
+                    ➕ 添加问题
+                </button>
+            </div>
+            <div id="questionsList"></div>
+        </div>
+
+        <!-- 样式设置 -->
+        <div class="style-panel">
+            <div class="panel-title" style="margin-bottom: 25px;">🎨 样式设置</div>
+
+            <div class="form-group">
+                <label class="form-label">品牌名称</label>
+                <input type="text" id="brandName" class="form-input" placeholder="例如：野百灵餐厅">
+            </div>
+
+            <div class="color-picker-group">
+                <div class="form-group">
+                    <label class="form-label">背景色1</label>
+                    <input type="color" id="bgColor1" class="form-input" value="#667eea">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">背景色2</label>
+                    <input type="color" id="bgColor2" class="form-input" value="#764ba2">
+                </div>
+            </div>
+
+            <div class="color-preview" id="bgPreview"></div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label class="form-label">完成页面标题</label>
+                <input type="text" id="completeTitle" class="form-input" placeholder="例如：感谢您的反馈！">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">完成页面文案</label>
+                <textarea id="completeText" class="form-textarea" placeholder="例如：您的宝贵意见将帮助我们不断改进..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加问题模态框 -->
+    <div class="modal" id="addQuestionModal">
+        <div class="modal-content" style="position: relative;">
+            <button class="modal-close" onclick="closeAddQuestionModal()">×</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 配置对象
+        let config = {
+            questions: [],
+            style: {
+                brandName: '野百灵餐厅',
+                bgColor1: '#667eea',
+                bgColor2: '#764ba2',
+                completeTitle: '感谢您的反馈！',
+                completeText: '您的宝贵意见将帮助我们不断改进，为您提供更好的用餐体验。'
+            }
+        };
+
+        let selectedQuestionIndex = null;
+        let currentStep = 1;
+        let newQuestion = {};
+
+        // 加载配置
+        function loadConfig() {
+            const saved = localStorage.getItem('ybl_questionnaire_config');
+            if (saved) {
+                config = JSON.parse(saved);
+            }
+            // 如果没有保存的配置，config 保持为空数组
+            renderQuestions();
+            loadStyleSettings();
+        }
+
+        // 渲染问题列表
+        function renderQuestions() {
+            const container = document.getElementById('questionsList');
+
+            if (config.questions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div>还没有添加问题<br>点击右上角"➕ 添加问题"开始创建</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = config.questions.map((q, index) => {
+                const typeLabel = {
+                    'radio': '单选题',
+                    'checkbox': '多选题',
+                    'rating': '星级评分',
+                    'text': '文本输入'
+                }[q.type];
+
+                const badgeClass = `badge-${q.type}`;
+
+                return `
+                    <div class="question-item" onclick="selectQuestion(${index})">
+                        <div class="question-header">
+                            <div class="question-title-text">
+                                ${index + 1}. ${q.title}
+                            </div>
+                            <span class="question-type-badge ${badgeClass}">${typeLabel}</span>
+                        </div>
+                        ${q.subtitle ? `<div class="question-subtitle">${q.subtitle}</div>` : ''}
+                        ${q.options && q.options.length > 0 ? `
+                            <div class="question-options">
+                                ${q.options.slice(0, 3).map(opt => `<span class="option-tag">${opt}</span>`).join('')}
+                                ${q.options.length > 3 ? `<span class="option-tag">+${q.options.length - 3}</span>` : ''}
+                            </div>
+                        ` : ''}
+                        <div class="question-actions">
+                            <button class="btn btn-danger btn-small" onclick="event.stopPropagation(); deleteQuestion(${index})">
+                                🗑️ 删除
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 选中问题 - 弹出编辑模态框
+        function selectQuestion(index) {
+            selectedQuestionIndex = index;
+            showEditQuestionModal(index);
+        }
+
+        // 显示编辑问题模态框
+        function showEditQuestionModal(index) {
+            const question = config.questions[index];
+            const modal = document.getElementById('addQuestionModal');
+            const content = document.getElementById('modalContent');
+
+            const typeLabel = {
+                'radio': '单选题',
+                'checkbox': '多选题',
+                'rating': '星级评分',
+                'text': '文本输入'
+            }[question.type];
+
+            content.innerHTML = `
+                <div class="modal-header">✏️ 编辑${typeLabel}</div>
+
+                <div class="form-group">
+                    <label class="form-label">问题标题 *</label>
+                    <input type="text" id="editTitle" class="form-input" value="${question.title}" placeholder="请输入问题标题">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">副标题（选填）</label>
+                    <input type="text" id="editSubtitle" class="form-input" value="${question.subtitle || ''}" placeholder="例如：可选多个、点击星星评分等">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">字段名称 *</label>
+                    <input type="text" id="editName" class="form-input" value="${question.name}" placeholder="例如：companion, rating">
+                </div>
+
+                ${(question.type === 'radio' || question.type === 'checkbox') ? `
+                    <div class="form-group">
+                        <label class="form-label">选项列表</label>
+                        <div class="options-list" id="editOptionsList">
+                            ${question.options.map((opt, i) => `
+                                <div class="option-item">
+                                    <input type="text" class="form-input" value="${opt}" onchange="updateOption(${i}, this.value)">
+                                    <button class="btn btn-danger btn-small" onclick="removeOption(${i})">✕</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-secondary btn-small" onclick="addOptionToEdit()" style="margin-top: 10px;">
+                            ➕ 添加选项
+                        </button>
+                    </div>
+                ` : ''}
+
+                <div style="margin-top: 30px; display: flex; gap: 15px;">
+                    <button class="btn btn-success" onclick="saveQuestionEdit()">💾 保存修改</button>
+                    <button class="btn btn-secondary" onclick="closeAddQuestionModal()">取消</button>
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // 更新选项
+        function updateOption(index, value) {
+            if (selectedQuestionIndex !== null) {
+                config.questions[selectedQuestionIndex].options[index] = value;
+            }
+        }
+
+        // 移除选项
+        function removeOption(index) {
+            if (selectedQuestionIndex !== null) {
+                config.questions[selectedQuestionIndex].options.splice(index, 1);
+                showEditQuestionModal(selectedQuestionIndex);
+            }
+        }
+
+        // 添加选项到编辑中
+        function addOptionToEdit() {
+            if (selectedQuestionIndex !== null) {
+                config.questions[selectedQuestionIndex].options.push('新选项');
+                showEditQuestionModal(selectedQuestionIndex);
+            }
+        }
+
+        // 保存问题编辑
+        function saveQuestionEdit() {
+            if (selectedQuestionIndex === null) return;
+
+            const title = document.getElementById('editTitle').value.trim();
+            const subtitle = document.getElementById('editSubtitle').value.trim();
+            const name = document.getElementById('editName').value.trim();
+
+            if (!title || !name) {
+                alert('❌ 问题标题和字段名称不能为空');
+                return;
+            }
+
+            config.questions[selectedQuestionIndex].title = title;
+            config.questions[selectedQuestionIndex].subtitle = subtitle;
+            config.questions[selectedQuestionIndex].name = name;
+
+            // 立即保存到 localStorage
+            localStorage.setItem('ybl_questionnaire_config', JSON.stringify(config));
+
+            closeAddQuestionModal();
+            selectedQuestionIndex = null;
+            renderQuestions();
+
+            showSuccessMessage('✅ 保存成功！');
+        }
+
+        // 删除问题
+        function deleteQuestion(index) {
+            if (!confirm(`确定要删除问题"${config.questions[index].title}"吗？`)) {
+                return;
+            }
+            config.questions.splice(index, 1);
+
+            // 立即保存到 localStorage
+            localStorage.setItem('ybl_questionnaire_config', JSON.stringify(config));
+
+            selectedQuestionIndex = null;
+            renderQuestions();
+
+            showSuccessMessage('✅ 删除成功！');
+        }
+
+        // 显示添加问题模态框 - 第1步：选择类型
+        function showAddQuestionModal() {
+            currentStep = 1;
+            newQuestion = {};
+            const modal = document.getElementById('addQuestionModal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                <div class="modal-header">📝 添加新问题 - 选择类型</div>
+
+                <div class="type-selector">
+                    <div class="type-card" onclick="selectQuestionType('radio')">
+                        <div class="type-icon">🔘</div>
+                        <div class="type-name">单选题</div>
+                        <div class="type-desc">从多个选项中选择一个</div>
+                    </div>
+                    <div class="type-card" onclick="selectQuestionType('checkbox')">
+                        <div class="type-icon">☑️</div>
+                        <div class="type-name">多选题</div>
+                        <div class="type-desc">可以选择多个选项</div>
+                    </div>
+                    <div class="type-card" onclick="selectQuestionType('rating')">
+                        <div class="type-icon">⭐</div>
+                        <div class="type-name">星级评分</div>
+                        <div class="type-desc">1-5星评分</div>
+                    </div>
+                    <div class="type-card" onclick="selectQuestionType('text')">
+                        <div class="type-icon">✍️</div>
+                        <div class="type-name">文本输入</div>
+                        <div class="type-desc">自由填写文本内容</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="closeAddQuestionModal()">取消</button>
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // 选择问题类型
+        function selectQuestionType(type) {
+            newQuestion.type = type;
+            newQuestion.id = Date.now();
+            newQuestion.options = [];
+
+            // 高亮选中的类型
+            document.querySelectorAll('.type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.type-card').classList.add('selected');
+
+            // 延迟跳转到第2步
+            setTimeout(() => showStep2(), 300);
+        }
+
+        // 第2步：填写问题内容
+        function showStep2() {
+            const content = document.getElementById('modalContent');
+            const typeLabel = {
+                'radio': '单选题',
+                'checkbox': '多选题',
+                'rating': '星级评分',
+                'text': '文本输入'
+            }[newQuestion.type];
+
+            content.innerHTML = `
+                <div class="modal-header">📝 添加${typeLabel} - 填写内容</div>
+
+                <div class="form-group">
+                    <label class="form-label">问题标题 *</label>
+                    <input type="text" id="newTitle" class="form-input" placeholder="例如：今天您和谁一起来用餐的？" autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">副标题（选填）</label>
+                    <input type="text" id="newSubtitle" class="form-input" placeholder="例如：可以选择多个选项">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">字段名称 *</label>
+                    <input type="text" id="newName" class="form-input" placeholder="例如：companion, rating" value="${suggestFieldName()}">
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="showAddQuestionModal()">上一步</button>
+                    <button class="btn btn-primary" onclick="goToStep3()">下一步</button>
+                </div>
+            `;
+        }
+
+        // 自动建议字段名
+        function suggestFieldName() {
+            const count = config.questions.length + 1;
+            return `question${count}`;
+        }
+
+        // 第3步：添加选项（仅选择题）
+        function goToStep3() {
+            const title = document.getElementById('newTitle').value.trim();
+            const subtitle = document.getElementById('newSubtitle').value.trim();
+            const name = document.getElementById('newName').value.trim();
+
+            if (!title || !name) {
+                alert('❌ 请填写问题标题和字段名称');
+                return;
+            }
+
+            newQuestion.title = title;
+            newQuestion.subtitle = subtitle;
+            newQuestion.name = name;
+
+            // 如果是选择题，进入第3步添加选项
+            if (newQuestion.type === 'radio' || newQuestion.type === 'checkbox') {
+                showStep3();
+            } else {
+                // 否则直接完成
+                finishAddQuestion();
+            }
+        }
+
+        // 第3步：添加选项
+        function showStep3() {
+            const content = document.getElementById('modalContent');
+            const typeLabel = newQuestion.type === 'radio' ? '单选题' : '多选题';
+
+            content.innerHTML = `
+                <div class="modal-header">📝 添加${typeLabel} - 设置选项</div>
+
+                <div class="form-group">
+                    <label class="form-label">选项列表</label>
+                    <div class="options-list" id="newOptionsList">
+                        ${newQuestion.options.map((opt, i) => `
+                            <div class="option-item">
+                                <input type="text" class="form-input" value="${opt}" onchange="newQuestion.options[${i}] = this.value">
+                                <button class="btn btn-danger btn-small" onclick="removeNewOption(${i})">✕</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="addNewOption()" style="margin-top: 10px;">
+                        ➕ 添加选项
+                    </button>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="showStep2()">上一步</button>
+                    <button class="btn btn-success" onclick="finishAddQuestion()">✅ 完成</button>
+                </div>
+            `;
+
+            // 自动添加3个空选项
+            if (newQuestion.options.length === 0) {
+                newQuestion.options = ['选项1', '选项2', '选项3'];
+                showStep3();
+            }
+        }
+
+        // 添加新选项
+        function addNewOption() {
+            newQuestion.options.push('新选项');
+            showStep3();
+        }
+
+        // 移除新选项
+        function removeNewOption(index) {
+            newQuestion.options.splice(index, 1);
+            showStep3();
+        }
+
+        // 完成添加问题
+        function finishAddQuestion() {
+            // 验证选择题至少有2个选项
+            if ((newQuestion.type === 'radio' || newQuestion.type === 'checkbox') && newQuestion.options.length < 2) {
+                alert('❌ 选择题至少需要2个选项');
+                return;
+            }
+
+            config.questions.push(newQuestion);
+
+            // 立即保存到 localStorage
+            localStorage.setItem('ybl_questionnaire_config', JSON.stringify(config));
+
+            closeAddQuestionModal();
+            renderQuestions();
+
+            showSuccessMessage('✅ 问题添加成功！');
+        }
+
+        // 关闭模态框
+        function closeAddQuestionModal() {
+            document.getElementById('addQuestionModal').classList.remove('show');
+        }
+
+        // 加载样式设置
+        function loadStyleSettings() {
+            document.getElementById('brandName').value = config.style.brandName;
+            document.getElementById('bgColor1').value = config.style.bgColor1;
+            document.getElementById('bgColor2').value = config.style.bgColor2;
+            document.getElementById('completeTitle').value = config.style.completeTitle;
+            document.getElementById('completeText').value = config.style.completeText;
+            updateBgPreview();
+        }
+
+        // 更新背景预览
+        function updateBgPreview() {
+            const preview = document.getElementById('bgPreview');
+            const color1 = document.getElementById('bgColor1').value;
+            const color2 = document.getElementById('bgColor2').value;
+            preview.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+        }
+
+        // 显示成功消息（统一方法）
+        function showSuccessMessage(text) {
+            const message = document.createElement('div');
+            message.textContent = text;
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(16, 185, 129, 0.95);
+                color: white;
+                padding: 20px 40px;
+                border-radius: 16px;
+                font-size: 18px;
+                font-weight: bold;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+            `;
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 1500);
+        }
+
+        // 保存配置
+        function saveConfig() {
+            config.style.brandName = document.getElementById('brandName').value;
+            config.style.bgColor1 = document.getElementById('bgColor1').value;
+            config.style.bgColor2 = document.getElementById('bgColor2').value;
+            config.style.completeTitle = document.getElementById('completeTitle').value;
+            config.style.completeText = document.getElementById('completeText').value;
+
+            localStorage.setItem('ybl_questionnaire_config', JSON.stringify(config));
+
+            showSuccessMessage('✅ 配置保存成功！');
+        }
+
+        // 预览问卷
+        function previewSurvey() {
+            saveConfig();
+            window.open('survey.html?preview=true', '_blank');
+        }
+
+        // 监听颜色变化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('bgColor1').addEventListener('input', updateBgPreview);
+            document.getElementById('bgColor2').addEventListener('input', updateBgPreview);
+        });
+
+        // 页面加载
+        window.addEventListener('load', loadConfig);
+    </script>
+</body>
+</html>

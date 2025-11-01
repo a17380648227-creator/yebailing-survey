@@ -1020,6 +1020,24 @@
     </div>
 
     <script>
+        // 加载问卷配置
+        let surveyConfig = null;
+
+        function loadSurveyConfig() {
+            const saved = localStorage.getItem('ybl_questionnaire_config');
+            if (saved) {
+                try {
+                    surveyConfig = JSON.parse(saved);
+                    console.log('成功加载问卷配置:', surveyConfig);
+                    return true;
+                } catch (e) {
+                    console.error('配置解析失败:', e);
+                    return false;
+                }
+            }
+            return false;
+        }
+
         // 获取URL参数（门店和桌号）- 兼容长参数名和短参数名
         function getUrlParams() {
             const params = new URLSearchParams(window.location.search);
@@ -1033,8 +1051,104 @@
         const storeInfo = getUrlParams();
         console.log('当前门店信息:', storeInfo);
 
+        // 应用问卷配置样式
+        function applyConfigStyles() {
+            if (!surveyConfig) return;
+
+            const style = surveyConfig.style;
+
+            // 应用背景渐变色
+            if (style.bgColor1 && style.bgColor2) {
+                document.body.style.background = `linear-gradient(135deg, ${style.bgColor1} 0%, ${style.bgColor2} 100%)`;
+            }
+
+            // 应用品牌名称
+            if (style.brandName) {
+                const brandElements = document.querySelectorAll('.brand-name');
+                brandElements.forEach(el => el.textContent = style.brandName);
+
+                // 更新页面标题
+                document.title = `${style.brandName} - 用餐反馈`;
+            }
+
+            // 应用完成页面文案
+            if (style.completeTitle) {
+                const completeTitle = document.querySelector('.complete-title');
+                if (completeTitle) completeTitle.textContent = style.completeTitle;
+            }
+            if (style.completeText) {
+                const completeText = document.querySelector('.complete-text');
+                if (completeText) completeText.textContent = style.completeText;
+            }
+
+            console.log('样式配置已应用');
+        }
+
+        // 应用问题内容配置
+        function applyQuestionContent() {
+            if (!surveyConfig || !surveyConfig.questions) return;
+
+            surveyConfig.questions.forEach((question, index) => {
+                const questionNum = index + 1;
+                const questionCard = document.getElementById(`question${questionNum}`);
+                if (!questionCard) return;
+
+                // 更新问题标题
+                const titleEl = questionCard.querySelector('.question-title');
+                if (titleEl && question.title) {
+                    titleEl.textContent = question.title;
+                }
+
+                // 更新副标题
+                const subtitleEl = questionCard.querySelector('.question-subtitle');
+                if (question.subtitle) {
+                    if (subtitleEl) {
+                        subtitleEl.textContent = question.subtitle;
+                    } else {
+                        // 如果没有副标题元素，创建一个
+                        const newSubtitle = document.createElement('p');
+                        newSubtitle.className = 'question-subtitle';
+                        newSubtitle.textContent = question.subtitle;
+                        titleEl.after(newSubtitle);
+                    }
+                }
+
+                // 更新选项（单选和多选题）
+                if (question.type === 'radio' || question.type === 'checkbox') {
+                    const optionsContainer = questionCard.querySelector('.options');
+                    if (optionsContainer && question.options && question.options.length > 0) {
+                        optionsContainer.innerHTML = question.options.map(opt => `
+                            <label class="option">
+                                <input type="${question.type}" name="${question.name || `question${questionNum}`}" value="${opt}">
+                                <span class="option-label">${opt}</span>
+                            </label>
+                        `).join('');
+
+                        // 重新绑定事件监听器
+                        if (question.type === 'radio') {
+                            const inputs = optionsContainer.querySelectorAll('input[type="radio"]');
+                            inputs.forEach(input => {
+                                input.addEventListener('change', () => {
+                                    document.getElementById(`next${questionNum}`).disabled = false;
+                                });
+                            });
+                        }
+                    }
+                }
+            });
+
+            console.log('问题内容配置已应用');
+        }
+
         // 显示门店和桌号信息
         window.addEventListener('load', () => {
+            // 加载并应用问卷配置
+            const hasConfig = loadSurveyConfig();
+            if (hasConfig) {
+                applyConfigStyles();
+                applyQuestionContent();
+            }
+
             const storeInfoTag = document.getElementById('storeInfoTag');
             if (storeInfo.store !== '未知门店' && storeInfo.table !== '未知桌号') {
                 storeInfoTag.textContent = `${storeInfo.store} - ${storeInfo.table}号桌`;
@@ -1177,23 +1291,46 @@
 
         // 提交问卷
         function submitSurvey() {
-            const companion = document.querySelector('input[name="companion"]:checked')?.value;
-            const rating = selectedRating;
-            const improvements = Array.from(document.querySelectorAll('input[name="improvement"]:checked'))
-                .map(cb => cb.value);
-            const suggestions = document.getElementById('suggestions').value;
-
-            // 组装完整的问卷数据（包含门店和桌号）
             const surveyData = {
                 store: storeInfo.store,
                 table: storeInfo.table,
-                companion,
-                rating,
-                improvements,
-                suggestions,
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleString('zh-CN')
             };
+
+            // 如果有配置，使用配置收集数据
+            if (surveyConfig && surveyConfig.questions) {
+                surveyConfig.questions.forEach((question, index) => {
+                    const questionNum = index + 1;
+                    const name = question.name || `question${questionNum}`;
+
+                    if (question.type === 'radio') {
+                        const selected = document.querySelector(`input[name="${name}"]:checked`)?.value;
+                        surveyData[name] = selected || '';
+                    } else if (question.type === 'checkbox') {
+                        const selected = Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+                            .map(cb => cb.value);
+                        surveyData[name] = selected;
+                    } else if (question.type === 'rating') {
+                        surveyData[name] = selectedRating || 0;
+                    } else if (question.type === 'text') {
+                        const textInput = document.getElementById(name) || document.getElementById('suggestions');
+                        surveyData[name] = textInput?.value || '';
+                    }
+                });
+            } else {
+                // 兼容旧版：如果没有配置，使用默认字段
+                const companion = document.querySelector('input[name="companion"]:checked')?.value;
+                const rating = selectedRating;
+                const improvements = Array.from(document.querySelectorAll('input[name="improvement"]:checked'))
+                    .map(cb => cb.value);
+                const suggestions = document.getElementById('suggestions').value;
+
+                surveyData.companion = companion;
+                surveyData.rating = rating;
+                surveyData.improvements = improvements;
+                surveyData.suggestions = suggestions;
+            }
 
             console.log('问卷数据:', surveyData);
 
@@ -1204,10 +1341,7 @@
             document.getElementById('survey').style.display = 'none';
             document.getElementById('complete').classList.add('active');
 
-            // 3秒后重置
-            setTimeout(() => {
-                location.reload();
-            }, 3000);
+            // 停留在感谢页面，不自动刷新
         }
 
         // 保存问卷数据到localStorage
@@ -1231,8 +1365,7 @@
                 console.log('✅ 验证保存成功！localStorage中的问卷数量:', saved.length);
                 console.log('📝 最新保存的问卷:', saved[saved.length - 1]);
 
-                // 在页面上显示提示（方便调试）
-                alert(`✅ 问卷提交成功！\n门店：${data.store}\n桌号：${data.table}\n总问卷数：${saved.length}`);
+                // 不再自动刷新，停留在感谢页面
             } catch (error) {
                 console.error('❌ 保存失败:', error);
                 alert(`❌ 保存失败: ${error.message}`);

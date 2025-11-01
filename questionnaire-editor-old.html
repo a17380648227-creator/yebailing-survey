@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问卷编辑 - 野百灵餐厅</title>
+    <script src="auth.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 40px 30px; }
+        .page-header { margin-bottom: 40px; text-align: center; }
+        .page-title {
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 12px;
+        }
+        .page-subtitle { font-size: 16px; color: rgba(255, 255, 255, 0.7); }
+
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .tab {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            color: white;
+            border-bottom-color: #3b82f6;
+        }
+        .tab:hover { color: rgba(255, 255, 255, 0.9); }
+
+        /* 标签页内容 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(147, 197, 253, 0.2);
+            margin-bottom: 25px;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 表单元素 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            color: white;
+            transition: all 0.3s;
+        }
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-select {
+            cursor: pointer;
+        }
+        .form-select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        /* 问题列表 */
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(147, 197, 253, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .question-item:hover {
+            border-color: #3b82f6;
+        }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .question-title-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            flex: 1;
+        }
+        .question-type {
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #60a5fa;
+            margin-right: 10px;
+        }
+        .question-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .option-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .option-tag {
+            padding: 6px 12px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #c4b5fd;
+        }
+
+        /* 图片上传 */
+        .image-upload-area {
+            border: 2px dashed rgba(147, 197, 253, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .image-upload-area:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .image-upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.6;
+        }
+        .image-preview {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(147, 197, 253, 0.3);
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 颜色选择器 */
+        .color-picker-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .color-input {
+            width: 60px;
+            height: 40px;
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .color-preview {
+            flex: 1;
+            height: 60px;
+            border-radius: 12px;
+            border: 2px solid rgba(147, 197, 253, 0.3);
+        }
+
+        /* 保存按钮组 */
+        .save-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+        .floating-btn {
+            padding: 16px 32px;
+            font-size: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <script src="navbar.js"></script>
+    <script>insertNavbar('questionnaire-editor.html');</script>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">📝 问卷编辑器</h1>
+            <p class="page-subtitle">自定义问卷内容、样式和轮播图</p>
+        </div>
+
+        <!-- 标签页导航 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('questions')">📋 问题管理</button>
+            <button class="tab" onclick="switchTab('images')">🖼️ 轮播图管理</button>
+            <button class="tab" onclick="switchTab('style')">🎨 样式设置</button>
+        </div>
+
+        <!-- 标签页内容 -->
+
+        <!-- 问题管理 -->
+        <div class="tab-content active" id="tab-questions">
+            <div class="card">
+                <div class="card-title">
+                    📋 当前问题列表
+                </div>
+                <div class="question-list" id="questionList">
+                    <!-- 问题列表将通过 JavaScript 动态生成 -->
+                </div>
+                <button class="btn btn-success" onclick="addQuestion()" style="margin-top: 20px;">➕ 添加新问题</button>
+            </div>
+        </div>
+
+        <!-- 轮播图管理 -->
+        <div class="tab-content" id="tab-images">
+            <div class="card">
+                <div class="card-title">
+                    🖼️ 轮播图设置
+                    <span style="font-size: 14px; font-weight: normal; color: rgba(255,255,255,0.6); margin-left: 10px;">
+                        （建议尺寸：1080x1920px，支持 JPG/PNG）
+                    </span>
+                </div>
+                <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 14px;">
+                    ⚠️ 注意：由于浏览器安全限制，图片上传功能需要在实际服务器环境中使用。本地预览时，请直接替换 pic/ 文件夹中的图片文件。
+                </p>
+                <div style="color: rgba(255,255,255,0.8); line-height: 1.8; background: rgba(59, 130, 246, 0.1); padding: 20px; border-radius: 12px;">
+                    <strong>💡 如何更换轮播图：</strong><br>
+                    1. 准备好3张图片（建议尺寸 1080x1920px）<br>
+                    2. 重命名为：product1.jpg、product2.jpg、product3.jpg<br>
+                    3. 替换项目根目录下 pic/ 文件夹中的对应文件<br>
+                    4. 刷新问卷页面即可看到新图片<br>
+                    <br>
+                    <strong>🎯 专业提示：</strong><br>
+                    • 使用高质量图片，避免模糊<br>
+                    • 保持三张图片风格统一<br>
+                    • 避免图片文件过大（建议每张 < 500KB）
+                </div>
+            </div>
+        </div>
+
+        <!-- 样式设置 -->
+        <div class="tab-content" id="tab-style">
+            <div class="card">
+                <div class="card-title">
+                    🎨 基础设置
+                </div>
+                <div class="form-group">
+                    <label class="form-label">品牌名称</label>
+                    <input type="text" class="form-input" id="brandName" placeholder="例如：野百灵餐厅">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">完成页面标题</label>
+                    <input type="text" class="form-input" id="completeTitle" placeholder="例如：感谢您的反馈！">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">完成页面文字</label>
+                    <textarea class="form-textarea" id="completeText" placeholder="例如：您的宝贵意见将帮助我们不断改进"></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    🌈 背景渐变色设置
+                </div>
+                <div class="form-group">
+                    <label class="form-label">起始颜色</label>
+                    <div class="color-picker-group">
+                        <input type="color" class="color-input" id="bgColor1" value="#667eea">
+                        <div class="color-preview" id="bgPreview"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">结束颜色</label>
+                    <div class="color-picker-group">
+                        <input type="color" class="color-input" id="bgColor2" value="#764ba2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 保存按钮 -->
+    <div class="save-actions">
+        <button class="btn btn-primary floating-btn" onclick="saveConfig()">💾 保存设置</button>
+        <button class="btn btn-success floating-btn" onclick="previewSurvey()">👁️ 预览问卷</button>
+    </div>
+
+    <script>
+        // 默认配置
+        let config = {
+            questions: [
+                {
+                    id: 1,
+                    type: 'radio',
+                    title: '今天您和谁一起来用餐的？',
+                    subtitle: '',
+                    name: 'companion',
+                    options: ['家人', '朋友', '对象', '独自']
+                },
+                {
+                    id: 2,
+                    type: 'rating',
+                    title: '您对今天的菜品满意吗？',
+                    subtitle: '点击星星进行评分',
+                    name: 'rating',
+                    options: []
+                },
+                {
+                    id: 3,
+                    type: 'checkbox',
+                    title: '以下哪些内容您觉得有待改进？',
+                    subtitle: '可以选择多个选项',
+                    name: 'improvements',
+                    options: ['菜品-口味', '菜品-分量', '菜品-价格', '服务', '环境']
+                },
+                {
+                    id: 4,
+                    type: 'text',
+                    title: '其他建议',
+                    subtitle: '选填，分享更多想法...',
+                    name: 'suggestions',
+                    options: []
+                }
+            ],
+            style: {
+                brandName: '野百灵餐厅',
+                bgColor1: '#667eea',
+                bgColor2: '#764ba2',
+                completeTitle: '感谢您的反馈！',
+                completeText: '您的宝贵意见将帮助我们不断改进，为您提供更好的用餐体验。'
+            }
+        };
+
+        // 加载配置
+        function loadConfig() {
+            const saved = localStorage.getItem('ybl_questionnaire_config');
+            if (saved) {
+                config = JSON.parse(saved);
+            }
+            renderQuestions();
+            loadStyleSettings();
+        }
+
+        // 渲染问题列表
+        function renderQuestions() {
+            const container = document.getElementById('questionList');
+            container.innerHTML = config.questions.map((q, index) => `
+                <div class="question-item">
+                    <div class="question-header">
+                        <div class="question-title-text">
+                            问题 ${index + 1}：${q.title}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="question-type">${getTypeLabel(q.type)}</span>
+                            <div class="question-actions">
+                                <button class="btn btn-primary btn-small" onclick="editQuestion(${index})">✏️ 编辑</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteQuestion(${index})">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+                    ${q.subtitle ? `<div style="color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 10px;">${q.subtitle}</div>` : ''}
+                    ${q.options.length > 0 ? `
+                        <div class="option-list">
+                            ${q.options.map(opt => `<span class="option-tag">${opt}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 获取问题类型标签
+        function getTypeLabel(type) {
+            const labels = {
+                'radio': '单选题',
+                'checkbox': '多选题',
+                'rating': '星级评分',
+                'text': '文本输入'
+            };
+            return labels[type] || type;
+        }
+
+        // 添加问题
+        function addQuestion() {
+            const title = prompt('请输入问题标题：');
+            if (!title) return;
+
+            const type = prompt('请选择问题类型：\n1. radio (单选)\n2. checkbox (多选)\n3. rating (星级评分)\n4. text (文本输入)\n\n请输入 1-4：');
+            const types = ['radio', 'checkbox', 'rating', 'text'];
+            const selectedType = types[parseInt(type) - 1];
+
+            if (!selectedType) {
+                alert('❌ 无效的问题类型');
+                return;
+            }
+
+            let options = [];
+            if (selectedType === 'radio' || selectedType === 'checkbox') {
+                const optionsStr = prompt('请输入选项，用逗号分隔（例如：选项1,选项2,选项3）：');
+                if (optionsStr) {
+                    options = optionsStr.split(',').map(o => o.trim()).filter(o => o);
+                }
+            }
+
+            const newQuestion = {
+                id: Date.now(),
+                type: selectedType,
+                title: title,
+                subtitle: '',
+                name: `question_${Date.now()}`,
+                options: options
+            };
+
+            config.questions.push(newQuestion);
+            renderQuestions();
+        }
+
+        // 编辑问题
+        function editQuestion(index) {
+            const q = config.questions[index];
+            const title = prompt('编辑问题标题：', q.title);
+            if (title !== null) {
+                q.title = title;
+            }
+
+            if (q.type === 'radio' || q.type === 'checkbox') {
+                const optionsStr = prompt('编辑选项（用逗号分隔）：', q.options.join(','));
+                if (optionsStr !== null) {
+                    q.options = optionsStr.split(',').map(o => o.trim()).filter(o => o);
+                }
+            }
+
+            renderQuestions();
+        }
+
+        // 删除问题
+        function deleteQuestion(index) {
+            if (!confirm(`确定要删除问题"${config.questions[index].title}"吗？`)) {
+                return;
+            }
+            config.questions.splice(index, 1);
+            renderQuestions();
+        }
+
+        // 加载样式设置
+        function loadStyleSettings() {
+            document.getElementById('brandName').value = config.style.brandName;
+            document.getElementById('bgColor1').value = config.style.bgColor1;
+            document.getElementById('bgColor2').value = config.style.bgColor2;
+            document.getElementById('completeTitle').value = config.style.completeTitle;
+            document.getElementById('completeText').value = config.style.completeText;
+            updateBgPreview();
+        }
+
+        // 更新背景预览
+        function updateBgPreview() {
+            const preview = document.getElementById('bgPreview');
+            const color1 = document.getElementById('bgColor1').value;
+            const color2 = document.getElementById('bgColor2').value;
+            preview.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+        }
+
+        // 监听颜色变化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('bgColor1')?.addEventListener('input', updateBgPreview);
+            document.getElementById('bgColor2')?.addEventListener('input', updateBgPreview);
+        });
+
+        // 标签页切换
+        function switchTab(tabName) {
+            // 更新标签按钮
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 更新内容区域
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // 保存配置
+        function saveConfig() {
+            // 收集样式设置
+            config.style.brandName = document.getElementById('brandName').value;
+            config.style.bgColor1 = document.getElementById('bgColor1').value;
+            config.style.bgColor2 = document.getElementById('bgColor2').value;
+            config.style.completeTitle = document.getElementById('completeTitle').value;
+            config.style.completeText = document.getElementById('completeText').value;
+
+            // 保存到 localStorage
+            localStorage.setItem('ybl_questionnaire_config', JSON.stringify(config));
+
+            // 提示成功（0.5秒后自动消失）
+            const message = document.createElement('div');
+            message.textContent = '✅ 保存成功！';
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(16, 185, 129, 0.95);
+                color: white;
+                padding: 20px 40px;
+                border-radius: 16px;
+                font-size: 18px;
+                font-weight: bold;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+            `;
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 1500);
+        }
+
+        // 预览问卷
+        function previewSurvey() {
+            saveConfig();
+            window.open('survey.html?preview=true', '_blank');
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', loadConfig);
+    </script>
+</body>
+</html>
