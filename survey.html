@@ -1014,16 +1014,20 @@
 
         function loadSurveyConfig() {
             const saved = localStorage.getItem('ybl_questionnaire_config');
+            console.log('🔍 读取问卷配置:', saved ? '找到配置' : '未找到配置');
             if (saved) {
                 try {
                     surveyConfig = JSON.parse(saved);
-                    console.log('成功加载问卷配置:', surveyConfig);
+                    console.log('✅ 成功加载问卷配置:', surveyConfig);
+                    console.log('📝 完成页面标题:', surveyConfig.style?.completeTitle);
+                    console.log('📝 完成页面文案:', surveyConfig.style?.completeText);
                     return true;
                 } catch (e) {
-                    console.error('配置解析失败:', e);
+                    console.error('❌ 配置解析失败:', e);
                     return false;
                 }
             }
+            console.warn('⚠️ 未找到问卷配置，将使用默认设置');
             return false;
         }
 
@@ -1071,11 +1075,17 @@
             // 应用完成页面文案
             if (style.completeTitle) {
                 const completeTitle = document.querySelector('.complete-title');
-                if (completeTitle) completeTitle.textContent = style.completeTitle;
+                if (completeTitle) {
+                    completeTitle.textContent = style.completeTitle;
+                    console.log('✅ 已应用完成页面标题:', style.completeTitle);
+                }
             }
             if (style.completeText) {
                 const completeText = document.querySelector('.complete-text');
-                if (completeText) completeText.textContent = style.completeText;
+                if (completeText) {
+                    completeText.textContent = style.completeText;
+                    console.log('✅ 已应用完成页面文案:', style.completeText);
+                }
             }
 
             console.log('样式配置已应用');

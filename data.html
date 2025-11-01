@@ -539,6 +539,25 @@
         }
 
         // 页面加载时加载数据
+        // 自动刷新数据（每5秒检查一次新数据）
+        let autoRefreshInterval = null;
+
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(() => {
+                const newData = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+                if (newData.length !== allAnswers.length) {
+                    console.log('🔄 检测到新数据，自动刷新...');
+                    loadData();
+                }
+            }, 5000); // 每5秒检查一次
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
         // 图表实例
         let ratingChartInstance = null;
         let trendChartInstance = null;
@@ -691,7 +710,13 @@
             });
         }
 
-        window.addEventListener('load', loadData);
+        window.addEventListener('load', () => {
+            loadData();
+            startAutoRefresh(); // 启动自动刷新
+        });
+
+        // 页面卸载时停止自动刷新
+        window.addEventListener('beforeunload', stopAutoRefresh);
     </script>
 </body>
 </html>
