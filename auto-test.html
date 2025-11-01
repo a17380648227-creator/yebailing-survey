@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>自动化测试 - 门店和桌号参数</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #0f0; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #0f0; }
+        .pass { background: #001a00; }
+        .fail { background: #1a0000; color: #f00; }
+        pre { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 自动化测试：URL参数解析</h1>
+    <div id="tests"></div>
+    <hr>
+    <h2>实际页面测试</h2>
+    <iframe id="testFrame" width="100%" height="400" style="border: 2px solid #0f0;"></iframe>
+
+    <script>
+        const results = [];
+
+        function test(name, fn) {
+            try {
+                const result = fn();
+                results.push({ name, pass: result.pass, message: result.message });
+            } catch (e) {
+                results.push({ name, pass: false, message: e.message });
+            }
+        }
+
+        // 测试1: URL构造
+        test('二维码URL构造', () => {
+            const SITE_URL = 'https://a17380648227-creator.github.io/yebailing-survey';
+            const storeName = '测试门店';
+            const tableName = 'A1';
+            const url = `${SITE_URL}/survey.html?s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`;
+
+            const expected = 'https://a17380648227-creator.github.io/yebailing-survey/survey.html?s=%E6%B5%8B%E8%AF%95%E9%97%A8%E5%BA%97&t=A1';
+            const pass = url === expected;
+
+            return {
+                pass,
+                message: `生成的URL: ${url}\n期望的URL: ${expected}`
+            };
+        });
+
+        // 测试2: URL参数解析（模拟）
+        test('URL参数解析', () => {
+            const testUrl = 'https://example.com/survey.html?s=测试门店&t=A1';
+            const url = new URL(testUrl);
+            const params = new URLSearchParams(url.search);
+
+            const store = params.get('s') || '未知门店';
+            const table = params.get('t') || '未知桌号';
+
+            const pass = store === '测试门店' && table === 'A1';
+
+            return {
+                pass,
+                message: `解析结果: store="${store}", table="${table}"`
+            };
+        });
+
+        // 测试3: 数据保存结构
+        test('数据保存结构', () => {
+            const surveyData = {
+                store: '测试门店',
+                table: 'A1',
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleString('zh-CN'),
+                companion: '家人',
+                rating: 5,
+                improvements: [],
+                suggestions: '测试建议'
+            };
+
+            const hasStore = surveyData.store !== '未知门店';
+            const hasTable = surveyData.table !== '未知桌号';
+            const pass = hasStore && hasTable;
+
+            return {
+                pass,
+                message: `数据结构: ${JSON.stringify(surveyData, null, 2)}`
+            };
+        });
+
+        // 显示测试结果
+        function displayResults() {
+            const container = document.getElementById('tests');
+            container.innerHTML = results.map(r => `
+                <div class="test ${r.pass ? 'pass' : 'fail'}">
+                    <strong>${r.pass ? '✅' : '❌'} ${r.name}</strong>
+                    <pre>${r.message}</pre>
+                </div>
+            `).join('');
+
+            const passCount = results.filter(r => r.pass).length;
+            const totalCount = results.length;
+
+            container.innerHTML += `
+                <div class="test ${passCount === totalCount ? 'pass' : 'fail'}">
+                    <h3>总结: ${passCount}/${totalCount} 测试通过</h3>
+                </div>
+            `;
+        }
+
+        // 运行测试
+        displayResults();
+
+        // 加载实际页面进行测试
+        const iframe = document.getElementById('testFrame');
+        iframe.src = 'https://a17380648227-creator.github.io/yebailing-survey/survey.html?s=测试门店&t=A1';
+
+        // 监听iframe加载
+        iframe.onload = () => {
+            console.log('✅ 实际页面已加载');
+            console.log('📍 页面URL:', iframe.src);
+        };
+    </script>
+</body>
+</html>

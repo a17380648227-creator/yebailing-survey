@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>野百灵用餐反馈</title>
     <style>
         * {
@@ -1285,12 +1288,25 @@
 
         // 提交问卷
         function submitSurvey() {
+            // 再次确认门店和桌号信息（防止丢失）
+            const currentParams = getUrlParams();
+            console.log('🔄 提交时重新获取参数:', currentParams);
+
             const surveyData = {
-                store: storeInfo.store,
-                table: storeInfo.table,
+                store: currentParams.store || storeInfo.store || '未知门店',
+                table: currentParams.table || storeInfo.table || '未知桌号',
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleString('zh-CN')
             };
+
+            // 检查门店和桌号是否正确获取
+            if (surveyData.store === '未知门店' || surveyData.table === '未知桌号') {
+                console.error('⚠️ 严重警告：门店或桌号信息缺失！');
+                console.error('当前URL:', window.location.href);
+                console.error('URL参数:', window.location.search);
+                console.error('storeInfo:', storeInfo);
+                console.error('currentParams:', currentParams);
+            }
 
             // 如果有配置，使用配置收集数据
             if (surveyConfig && surveyConfig.questions) {
