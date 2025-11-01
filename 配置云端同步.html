@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置云端同步 - 野百灵餐厅</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        .step-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .step-content {
+            color: #666;
+            line-height: 1.8;
+            margin-left: 47px;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        .input-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            margin-left: 47px;
+        }
+        .input-group input {
+            width: calc(100% - 47px);
+            margin-left: 47px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            display: none;
+        }
+        .success-box.show {
+            display: block;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #667eea;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 配置云端数据同步</h1>
+        <p class="subtitle">让手机和电脑的数据实时保持一致</p>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                创建 GitHub Token
+            </div>
+            <div class="step-content">
+                <p>点击下方按钮打开 GitHub Token 创建页面（已自动填写好配置）</p>
+                <button class="btn btn-primary" onclick="openGitHub()">
+                    🔑 打开 GitHub 创建 Token
+                </button>
+                <div class="warning" style="margin-top:15px;">
+                    <strong>📝 在 GitHub 页面上的操作：</strong><br>
+                    1. 确认描述为 "野百灵餐厅数据同步"<br>
+                    2. 确认已勾选 "gist" 权限<br>
+                    3. 点击页面底部的绿色按钮 "Generate token"<br>
+                    4. <strong>立即复制</strong>生成的 token（只显示一次！）
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                粘贴 Token
+            </div>
+            <div class="step-content">
+                <p>将复制的 GitHub Token 粘贴到下方输入框：</p>
+                <div class="input-group">
+                    <label>GitHub Token</label>
+                    <input type="text" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">3</span>
+                保存配置
+            </div>
+            <div class="step-content">
+                <button class="btn btn-success" onclick="saveConfig()">
+                    💾 保存并启用云端同步
+                </button>
+            </div>
+        </div>
+
+        <div class="success-box" id="successBox">
+            <h3 style="color:#059669;margin-bottom:10px;">✅ 配置成功！</h3>
+            <p style="color:#065f46;">
+                云端同步已启用！<br>
+                现在所有设备（手机、电脑、平板）的数据将实时同步。<br><br>
+                <strong>下一步：</strong><br>
+                1. 在手机上提交问卷 → 数据自动保存到云端<br>
+                2. 在电脑上打开后台 → 自动显示手机提交的数据<br>
+                3. 所有设备每30秒自动同步一次
+            </p>
+            <button class="btn btn-primary" onclick="location.href='admin.html'" style="margin-top:20px;">
+                🏠 进入管理后台
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function openGitHub() {
+            window.open('https://github.com/settings/tokens/new?description=野百灵餐厅数据同步&scopes=gist', '_blank');
+        }
+
+        function saveConfig() {
+            const token = document.getElementById('tokenInput').value.trim();
+
+            if (!token) {
+                alert('❌ 请先输入 GitHub Token');
+                return;
+            }
+
+            if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+                alert('❌ Token 格式不正确\n\nGitHub Token 应该以 ghp_ 或 github_pat_ 开头');
+                return;
+            }
+
+            // 保存到 localStorage
+            localStorage.setItem('github_token', token);
+            localStorage.setItem('cloud_sync_enabled', 'true');
+
+            // 显示成功消息
+            document.getElementById('successBox').classList.add('show');
+
+            // 滚动到底部
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>

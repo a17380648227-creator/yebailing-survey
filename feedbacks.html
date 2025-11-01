@@ -346,9 +346,26 @@
             });
         }
 
-        // 加载反馈数据
-        function loadFeedbacks() {
+        // 加载反馈数据（从云端和本地）
+        async function loadFeedbacks() {
+            // 1. 先从本地加载
             allFeedbacks = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+
+            // 2. 尝试从云端同步
+            const token = localStorage.getItem('github_token');
+            const gistId = localStorage.getItem('cloud_gist_id');
+
+            if (token && gistId && token !== 'YOUR_GITHUB_TOKEN') {
+                try {
+                    const cloudData = await fetchFromCloud(token, gistId);
+                    if (cloudData && cloudData.length > 0) {
+                        allFeedbacks = cloudData;
+                        localStorage.setItem('ybl_answers', JSON.stringify(cloudData));
+                    }
+                } catch (error) {
+                    console.warn('⚠️ 云端同步失败:', error.message);
+                }
+            }
 
             // 确保每个反馈都有状态字段
             allFeedbacks = allFeedbacks.map((feedback, index) => {
@@ -573,6 +590,22 @@
             } else {
                 document.getElementById('pageInput').value = currentPage;
             }
+        }
+
+        // 从云端获取数据
+        async function fetchFromCloud(token, gistId) {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Fetch failed');
+
+            const gist = await response.json();
+            const content = gist.files['feedbacks.json'].content;
+            return JSON.parse(content);
         }
 
         // 回车跳转
