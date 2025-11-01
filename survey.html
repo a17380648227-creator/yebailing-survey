@@ -1035,7 +1035,15 @@
 
         // 全局存储门店和桌号信息
         const storeInfo = getUrlParams();
-        console.log('当前门店信息:', storeInfo);
+        console.log('🔍 完整URL:', window.location.href);
+        console.log('🔍 URL参数部分:', window.location.search);
+        console.log('🔍 解析后的门店信息:', storeInfo);
+
+        // 调试：在页面上也显示（方便手机查看）
+        if (storeInfo.store === '未知门店' || storeInfo.table === '未知桌号') {
+            console.warn('⚠️ 警告：门店或桌号未正确获取！');
+            console.warn('当前URL:', window.location.href);
+        }
 
         // 应用问卷配置样式
         function applyConfigStyles() {

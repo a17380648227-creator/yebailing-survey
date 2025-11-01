@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>URL参数测试</title>
+</head>
+<body>
+    <h1>URL参数测试</h1>
+    <div id="result"></div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const s = params.get('s');
+        const t = params.get('t');
+
+        document.getElementById('result').innerHTML = `
+            <p>完整URL: ${window.location.href}</p>
+            <p>search部分: ${window.location.search}</p>
+            <p>门店(s): ${s || '未获取到'}</p>
+            <p>桌号(t): ${t || '未获取到'}</p>
+        `;
+
+        console.log('URL:', window.location.href);
+        console.log('search:', window.location.search);
+        console.log('s:', s);
+        console.log('t:', t);
+    </script>
+</body>
+</html>
