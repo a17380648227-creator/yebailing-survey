@@ -311,6 +311,12 @@
         <!-- 筛选器 -->
         <div class="filter-card">
             <div class="filter-group">
+                <label>品牌筛选：</label>
+                <select id="brandFilter" onchange="filterData()">
+                    <option value="">全部品牌</option>
+                </select>
+            </div>
+            <div class="filter-group">
                 <label>门店筛选：</label>
                 <select id="storeFilter" onchange="filterData()">
                     <option value="">全部门店</option>
@@ -393,13 +399,24 @@
 
             filteredAnswers = [...allAnswers];
 
+            // 加载品牌列表到筛选器
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+            const brandFilter = document.getElementById('brandFilter');
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand.name;
+                option.textContent = brand.name;
+                brandFilter.appendChild(option);
+            });
+
             // 加载门店列表到筛选器
             const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
             const storeFilter = document.getElementById('storeFilter');
             stores.forEach(store => {
                 const option = document.createElement('option');
                 option.value = store.name;
-                option.textContent = store.name;
+                // 显示：品牌 - 门店
+                option.textContent = store.brandName ? `${store.brandName} - ${store.name}` : store.name;
                 storeFilter.appendChild(option);
             });
 
@@ -497,16 +514,24 @@
 
         // 筛选数据
         function filterData() {
+            const brandFilter = document.getElementById('brandFilter').value;
             const storeFilter = document.getElementById('storeFilter').value;
             const ratingFilter = document.getElementById('ratingFilter').value;
 
             filteredAnswers = allAnswers.filter(answer => {
                 let match = true;
 
+                // 品牌筛选
+                if (brandFilter && answer.brand !== brandFilter) {
+                    match = false;
+                }
+
+                // 门店筛选
                 if (storeFilter && answer.store !== storeFilter) {
                     match = false;
                 }
 
+                // 评分筛选
                 if (ratingFilter && answer.rating !== parseInt(ratingFilter)) {
                     match = false;
                 }
@@ -567,9 +592,11 @@
 
             // 构建确认消息
             const filterInfo = [];
+            const brandFilter = document.getElementById('brandFilter').value;
             const storeFilter = document.getElementById('storeFilter').value;
             const ratingFilter = document.getElementById('ratingFilter').value;
 
+            if (brandFilter) filterInfo.push(`品牌: ${brandFilter}`);
             if (storeFilter) filterInfo.push(`门店: ${storeFilter}`);
             if (ratingFilter) filterInfo.push(`评分: ${ratingFilter}星`);
 
