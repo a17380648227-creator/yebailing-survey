@@ -1031,25 +1031,29 @@
             return false;
         }
 
-        // 获取URL参数（门店和桌号）- 兼容长参数名和短参数名
+        // 获取URL参数（品牌、门店和桌号）- 兼容长参数名和短参数名
         function getUrlParams() {
             const params = new URLSearchParams(window.location.search);
             return {
+                brand: params.get('b') || params.get('brand') || '', // 品牌参数（可选）
                 store: params.get('s') || params.get('store') || '未知门店',
                 table: params.get('t') || params.get('table') || '未知桌号'
             };
         }
 
-        // 全局存储门店和桌号信息
+        // 全局存储品牌、门店和桌号信息
         const storeInfo = getUrlParams();
         console.log('🔍 完整URL:', window.location.href);
         console.log('🔍 URL参数部分:', window.location.search);
-        console.log('🔍 解析后的门店信息:', storeInfo);
+        console.log('🔍 解析后的信息:', storeInfo);
 
         // 调试：在页面上也显示（方便手机查看）
         if (storeInfo.store === '未知门店' || storeInfo.table === '未知桌号') {
             console.warn('⚠️ 警告：门店或桌号未正确获取！');
             console.warn('当前URL:', window.location.href);
+        }
+        if (storeInfo.brand) {
+            console.log('✅ 品牌信息:', storeInfo.brand);
         }
 
         // 应用问卷配置样式
@@ -1158,7 +1162,11 @@
 
             const storeInfoTag = document.getElementById('storeInfoTag');
             if (storeInfo.store !== '未知门店' && storeInfo.table !== '未知桌号') {
-                storeInfoTag.textContent = `${storeInfo.store} - ${storeInfo.table}号桌`;
+                // 如果有品牌信息，一起显示
+                const displayText = storeInfo.brand
+                    ? `${storeInfo.brand} - ${storeInfo.store} - ${storeInfo.table}号桌`
+                    : `${storeInfo.store} - ${storeInfo.table}号桌`;
+                storeInfoTag.textContent = displayText;
                 storeInfoTag.classList.add('show');
             }
         });
@@ -1298,11 +1306,12 @@
 
         // 提交问卷
         function submitSurvey() {
-            // 再次确认门店和桌号信息（防止丢失）
+            // 再次确认品牌、门店和桌号信息（防止丢失）
             const currentParams = getUrlParams();
             console.log('🔄 提交时重新获取参数:', currentParams);
 
             const surveyData = {
+                brand: currentParams.brand || storeInfo.brand || '', // 品牌信息（可选）
                 store: currentParams.store || storeInfo.store || '未知门店',
                 table: currentParams.table || storeInfo.table || '未知桌号',
                 timestamp: new Date().toISOString(),
@@ -1316,6 +1325,11 @@
                 console.error('URL参数:', window.location.search);
                 console.error('storeInfo:', storeInfo);
                 console.error('currentParams:', currentParams);
+            }
+
+            // 如果有品牌信息，记录日志
+            if (surveyData.brand) {
+                console.log('✅ 包含品牌信息:', surveyData.brand);
             }
 
             // 如果有配置，使用配置收集数据

@@ -12,6 +12,7 @@ function createNavbar(currentPage) {
 
     const navItems = [
         { name: '首页', url: 'admin.html', icon: '🏠' },
+        { name: '品牌管理', url: 'brands.html', icon: '🏢' },
         { name: '门店管理', url: 'stores.html', icon: '🏪' },
         { name: '问卷编辑', url: 'questionnaire-editor.html', icon: '📝' },
         { name: '数据统计', url: 'data.html', icon: '📊' },
@@ -25,7 +26,7 @@ function createNavbar(currentPage) {
                 <div class="navbar-brand">
                     <a href="admin.html" class="brand-link">
                         <span class="brand-icon">🍴</span>
-                        <span class="brand-text">野百灵餐厅</span>
+                        <span class="brand-text">多品牌餐厅管理</span>
                     </a>
                 </div>
                 <div class="navbar-menu">

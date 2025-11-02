@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品牌管理 - 多品牌餐厅管理系统</title>
+    <script src="auth.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 40px 30px; }
+        .page-header { margin-bottom: 40px; text-align: center; }
+        .page-title {
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 12px;
+        }
+        .page-subtitle { font-size: 16px; color: rgba(255, 255, 255, 0.7); }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(147, 197, 253, 0.2);
+            margin-bottom: 30px;
+        }
+        .card-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-section { margin-bottom: 25px; }
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s;
+        }
+        .form-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .brand-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .brand-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(147, 197, 253, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .brand-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .brand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .brand-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        }
+        .brand-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .brand-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .brand-meta {
+            margin-top: 20px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .info-box-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        .info-box-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <script src="navbar.js"></script>
+    <script>insertNavbar('brands.html');</script>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">🏢 品牌管理</h1>
+            <p class="page-subtitle">管理多个餐饮品牌 - 野百灵、宁桂杏、邦兰埔</p>
+        </div>
+
+        <!-- 信息提示 -->
+        <div class="info-box">
+            <div class="info-box-title">💡 多品牌管理说明</div>
+            <div class="info-box-text">
+                现在支持管理多个品牌，每个品牌下可以有多个门店。<br>
+                目前系统包含三个品牌：野百灵、宁桂杏、邦兰埔。<br>
+                先创建品牌，然后在"门店管理"中为每个品牌添加门店。
+            </div>
+        </div>
+
+        <!-- 添加品牌 -->
+        <div class="card">
+            <h2 class="card-title">
+                <span>➕</span>
+                添加新品牌
+            </h2>
+            <div class="form-section">
+                <label class="form-label">品牌名称</label>
+                <input type="text" id="newBrandName" class="form-input" placeholder="例如：野百灵、宁桂杏、邦兰埔">
+            </div>
+            <button class="btn btn-primary" onclick="addBrand()">✨ 添加品牌</button>
+        </div>
+
+        <!-- 品牌列表 -->
+        <div class="card">
+            <h2 class="card-title">
+                <span>📋</span>
+                品牌列表
+            </h2>
+            <div id="brandsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化默认品牌
+        function initializeDefaultBrands() {
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+
+            // 如果没有品牌数据，创建三个默认品牌
+            if (brands.length === 0) {
+                const defaultBrands = ['野百灵', '宁桂杏', '邦兰埔'];
+                const now = Date.now();
+
+                defaultBrands.forEach((name, index) => {
+                    brands.push({
+                        id: now + index,
+                        name: name,
+                        createdAt: new Date().toISOString()
+                    });
+                });
+
+                localStorage.setItem('ybl_brands', JSON.stringify(brands));
+                console.log('✅ 已初始化三个默认品牌');
+            }
+        }
+
+        // 加载品牌列表
+        function loadBrands() {
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+            const container = document.getElementById('brandsList');
+
+            if (brands.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏢</div>
+                        <div>还没有添加品牌，点击上方按钮添加第一个品牌吧！</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div class="brand-grid">' + brands.map((brand, index) => {
+                // 统计该品牌的门店数
+                const brandStores = stores.filter(s => s.brandId === brand.id || s.brandName === brand.name);
+                const storeCount = brandStores.length;
+
+                // 统计桌位总数
+                const tableCount = brandStores.reduce((sum, store) => {
+                    return sum + (store.tables ? store.tables.length : 0);
+                }, 0);
+
+                // 统计反馈数
+                const feedbackCount = answers.filter(a => a.brand === brand.name).length;
+
+                const createdDate = new Date(brand.createdAt).toLocaleString('zh-CN');
+
+                return `
+                    <div class="brand-item">
+                        <div class="brand-header">
+                            <div class="brand-name">${brand.name}</div>
+                            <div class="brand-actions">
+                                <button class="btn btn-success btn-small" onclick="editBrand(${index})">
+                                    ✏️ 编辑
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="deleteBrand(${index})">
+                                    🗑️ 删除
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="brand-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">门店数量</div>
+                                <div class="stat-value">${storeCount}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">桌位总数</div>
+                                <div class="stat-value">${tableCount}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">反馈数量</div>
+                                <div class="stat-value">${feedbackCount}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">品牌ID</div>
+                                <div class="stat-value" style="font-size: 14px;">${brand.id}</div>
+                            </div>
+                        </div>
+
+                        <div class="brand-meta">
+                            创建时间：${createdDate}
+                        </div>
+                    </div>
+                `;
+            }).join('') + '</div>';
+        }
+
+        // 添加品牌
+        function addBrand() {
+            const name = document.getElementById('newBrandName').value.trim();
+
+            if (!name) {
+                alert('❌ 请输入品牌名称');
+                return;
+            }
+
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+
+            // 检查是否重复
+            if (brands.some(b => b.name === name)) {
+                alert('❌ 该品牌名称已存在');
+                return;
+            }
+
+            const newBrand = {
+                id: Date.now(),
+                name: name,
+                createdAt: new Date().toISOString()
+            };
+
+            brands.push(newBrand);
+            localStorage.setItem('ybl_brands', JSON.stringify(brands));
+
+            document.getElementById('newBrandName').value = '';
+            loadBrands();
+
+            showToast(`✅ 品牌"${name}"添加成功！`);
+        }
+
+        // 编辑品牌
+        function editBrand(index) {
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+            const oldName = brands[index].name;
+            const newName = prompt('请输入新的品牌名称：', oldName);
+
+            if (!newName || !newName.trim()) {
+                return;
+            }
+
+            if (newName.trim() === oldName) {
+                return;
+            }
+
+            // 检查新名称是否重复
+            if (brands.some((b, i) => i !== index && b.name === newName.trim())) {
+                alert('❌ 该品牌名称已存在');
+                return;
+            }
+
+            // 更新品牌名称
+            brands[index].name = newName.trim();
+            localStorage.setItem('ybl_brands', JSON.stringify(brands));
+
+            // 同步更新所有门店的品牌名称
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            stores.forEach(store => {
+                if (store.brandName === oldName || store.brandId === brands[index].id) {
+                    store.brandName = newName.trim();
+                }
+            });
+            localStorage.setItem('ybl_stores', JSON.stringify(stores));
+
+            // 同步更新所有反馈的品牌名称
+            const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+            answers.forEach(answer => {
+                if (answer.brand === oldName) {
+                    answer.brand = newName.trim();
+                }
+            });
+            localStorage.setItem('ybl_answers', JSON.stringify(answers));
+
+            loadBrands();
+            showToast(`✅ 品牌名称已更新为"${newName.trim()}"，所有关联数据已同步！`);
+        }
+
+        // 删除品牌
+        function deleteBrand(index) {
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+            const brand = brands[index];
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+
+            // 检查是否有关联门店
+            const linkedStores = stores.filter(s => s.brandId === brand.id || s.brandName === brand.name);
+
+            if (linkedStores.length > 0) {
+                if (!confirm(`⚠️ 品牌"${brand.name}"下有 ${linkedStores.length} 个门店。\n\n删除品牌将同时删除所有关联门店及其反馈数据！\n\n此操作不可恢复，确定继续吗？`)) {
+                    return;
+                }
+
+                // 二次确认
+                if (!confirm(`最后确认：真的要删除品牌"${brand.name}"及其所有数据吗？`)) {
+                    return;
+                }
+
+                // 删除关联门店
+                const remainingStores = stores.filter(s => s.brandId !== brand.id && s.brandName !== brand.name);
+                localStorage.setItem('ybl_stores', JSON.stringify(remainingStores));
+
+                // 删除关联反馈
+                const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+                const remainingAnswers = answers.filter(a => a.brand !== brand.name);
+                localStorage.setItem('ybl_answers', JSON.stringify(remainingAnswers));
+
+                showToast(`✅ 已删除品牌"${brand.name}"及其 ${linkedStores.length} 个门店`);
+            } else {
+                if (!confirm(`⚠️ 确定要删除品牌"${brand.name}"吗？`)) {
+                    return;
+                }
+                showToast(`✅ 已删除品牌"${brand.name}"`);
+            }
+
+            brands.splice(index, 1);
+            localStorage.setItem('ybl_brands', JSON.stringify(brands));
+            loadBrands();
+        }
+
+        // Toast提示
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: ${type === 'success' ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)'};
+                color: white;
+                padding: 20px 40px;
+                border-radius: 16px;
+                font-size: 18px;
+                font-weight: bold;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // 页面加载
+        window.addEventListener('load', () => {
+            initializeDefaultBrands();
+            loadBrands();
+        });
+    </script>
+</body>
+</html>

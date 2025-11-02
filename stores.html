@@ -270,6 +270,12 @@
                 添加新门店
             </h2>
             <div class="form-section">
+                <label class="form-label">所属品牌</label>
+                <select id="newStoreBrand" class="form-input" style="cursor: pointer;">
+                    <option value="">请选择品牌</option>
+                </select>
+            </div>
+            <div class="form-section">
                 <label class="form-label">门店名称</label>
                 <input type="text" id="newStoreName" class="form-input" placeholder="例如：朝阳店、三里屯店">
             </div>
@@ -282,6 +288,12 @@
                 <span>📋</span>
                 门店列表
             </h2>
+            <div class="form-section" style="max-width: 400px; margin-bottom: 25px;">
+                <label class="form-label">按品牌筛选</label>
+                <select id="brandFilter" class="form-input" style="cursor: pointer;" onchange="loadStores()">
+                    <option value="">全部品牌</option>
+                </select>
+            </div>
             <div id="storesList"></div>
         </div>
     </div>
@@ -292,16 +304,50 @@
         // ⚙️ 网站配置：部署到 GitHub Pages 后，修改这里的网址
         const SITE_URL = localStorage.getItem('ybl_site_url') || 'https://a17380648227-creator.github.io/yebailing-survey';
 
+        // 加载品牌列表到下拉框
+        function loadBrandOptions() {
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+
+            // 加载添加门店的品牌选择
+            const newStoreBrand = document.getElementById('newStoreBrand');
+            newStoreBrand.innerHTML = '<option value="">请选择品牌</option>' +
+                brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+
+            // 加载筛选的品牌选择
+            const brandFilter = document.getElementById('brandFilter');
+            brandFilter.innerHTML = '<option value="">全部品牌</option>' +
+                brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+        }
+
         // 加载门店列表
         function loadStores() {
-            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+            const allStores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
             const container = document.getElementById('storesList');
+
+            // 获取品牌筛选
+            const brandFilter = document.getElementById('brandFilter');
+            const selectedBrandId = brandFilter ? brandFilter.value : '';
+
+            // 筛选门店
+            const stores = selectedBrandId
+                ? allStores.filter(s => String(s.brandId) === selectedBrandId)
+                : allStores;
+
+            if (allStores.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏪</div>
+                        <div>还没有添加门店，先去<a href="brands.html" style="color: #3b82f6; text-decoration: underline;">品牌管理</a>添加品牌，再添加门店吧！</div>
+                    </div>
+                `;
+                return;
+            }
 
             if (stores.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">🏪</div>
-                        <div>还没有添加门店，点击上方按钮添加第一个门店吧！</div>
+                        <div class="empty-icon">🔍</div>
+                        <div>该品牌下还没有门店</div>
                     </div>
                 `;
                 return;
@@ -311,15 +357,23 @@
                 const tableCount = store.tables ? store.tables.length : 0;
                 const createdDate = new Date(store.createdAt).toLocaleString('zh-CN');
 
+                // 获取真实的索引（在完整列表中的位置）
+                const realIndex = allStores.findIndex(s => s.id === store.id);
+
                 return `
                     <div class="store-item">
                         <div class="store-header">
-                            <div class="store-name">${store.name}</div>
+                            <div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">
+                                    🏢 ${store.brandName || '未分配品牌'}
+                                </div>
+                                <div class="store-name">${store.name}</div>
+                            </div>
                             <div class="store-actions">
-                                <button class="btn btn-success btn-small" onclick="editStore(${storeIndex})">
+                                <button class="btn btn-success btn-small" onclick="editStore(${realIndex})">
                                     ✏️ 编辑
                                 </button>
-                                <button class="btn btn-danger" onclick="deleteStore(${storeIndex})">
+                                <button class="btn btn-danger" onclick="deleteStore(${realIndex})">
                                     🗑️ 删除
                                 </button>
                             </div>
@@ -390,10 +444,26 @@
 
         // 添加门店
         function addStore() {
+            const brandSelect = document.getElementById('newStoreBrand');
+            const brandId = brandSelect.value;
             const name = document.getElementById('newStoreName').value.trim();
+
+            if (!brandId) {
+                alert('❌ 请选择所属品牌');
+                return;
+            }
 
             if (!name) {
                 alert('❌ 请输入门店名称');
+                return;
+            }
+
+            // 获取品牌名称
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+            const brand = brands.find(b => String(b.id) === brandId);
+
+            if (!brand) {
+                alert('❌ 品牌不存在，请刷新页面');
                 return;
             }
 
@@ -401,6 +471,8 @@
 
             const newStore = {
                 id: Date.now(),
+                brandId: Number(brandId),
+                brandName: brand.name,
                 name: name,
                 tables: [],
                 createdAt: new Date().toISOString()
@@ -410,7 +482,32 @@
             localStorage.setItem('ybl_stores', JSON.stringify(stores));
 
             document.getElementById('newStoreName').value = '';
+            brandSelect.value = '';
             loadStores();
+
+            showToast(`✅ 门店"${brand.name} - ${name}"添加成功！`);
+        }
+
+        // Toast提示
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: ${type === 'success' ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)'};
+                color: white;
+                padding: 20px 40px;
+                border-radius: 16px;
+                font-size: 18px;
+                font-weight: bold;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
         }
 
         // 编辑门店
@@ -544,8 +641,15 @@
                     delete qrCodeInstances[key];
                 }
 
-                // 构造问卷URL
-                const url = `${SITE_URL}/survey.html?s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`;
+                // 获取门店信息（包含品牌）
+                const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+                const store = stores.find(s => s.name === storeName);
+                const brandName = store ? store.brandName : '';
+
+                // 构造问卷URL（添加品牌参数）
+                const url = brandName
+                    ? `${SITE_URL}/survey.html?b=${encodeURIComponent(brandName)}&s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`
+                    : `${SITE_URL}/survey.html?s=${encodeURIComponent(storeName)}&t=${encodeURIComponent(tableName)}`;
 
                 // 生成二维码
                 qrCodeInstances[key] = new QRCode(container, {
@@ -611,8 +715,10 @@
                 const qrContainer = document.createElement('div');
                 tempContainer.appendChild(qrContainer);
 
-                // 生成二维码
-                const url = `${SITE_URL}/survey.html?s=${encodeURIComponent(store.name)}&t=${encodeURIComponent(tableName)}`;
+                // 生成二维码（添加品牌参数）
+                const url = store.brandName
+                    ? `${SITE_URL}/survey.html?b=${encodeURIComponent(store.brandName)}&s=${encodeURIComponent(store.name)}&t=${encodeURIComponent(tableName)}`
+                    : `${SITE_URL}/survey.html?s=${encodeURIComponent(store.name)}&t=${encodeURIComponent(tableName)}`;
                 const qr = new QRCode(qrContainer, {
                     text: url,
                     width: 300,
@@ -647,8 +753,11 @@
             alert(`✅ 成功生成 ${store.tables.length} 个二维码！`);
         }
 
-        // 页面加载时显示列表
-        window.addEventListener('load', loadStores);
+        // 页面加载时加载品牌和门店列表
+        window.addEventListener('load', () => {
+            loadBrandOptions();
+            loadStores();
+        });
     </script>
 </body>
 </html>
