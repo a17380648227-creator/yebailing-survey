@@ -201,8 +201,8 @@
             const account = accounts.find(acc => acc.username === username && acc.password === password);
 
             if (account) {
-                // 保存登录状态
-                localStorage.setItem('ybl_current_user', JSON.stringify({
+                // 保存登录状态（统一使用ybl_login_session）
+                localStorage.setItem('ybl_login_session', JSON.stringify({
                     username: account.username,
                     role: account.role,
                     loginTime: new Date().toISOString()
@@ -228,8 +228,8 @@
 
         // 检查是否已登录
         function checkLogin() {
-            const currentUser = localStorage.getItem('ybl_current_user');
-            if (currentUser) {
+            const session = localStorage.getItem('ybl_login_session');
+            if (session) {
                 window.location.href = 'admin.html';
             }
         }

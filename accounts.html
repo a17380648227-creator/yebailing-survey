@@ -269,22 +269,22 @@
     <script>
         // 检查登录状态
         function checkAuth() {
-            const currentUser = JSON.parse(localStorage.getItem('ybl_current_user') || 'null');
-            if (!currentUser) {
-                window.location.href = 'index.html';
+            const session = JSON.parse(localStorage.getItem('ybl_login_session') || 'null');
+            if (!session) {
+                window.location.href = 'login.html';
                 return;
             }
-            document.getElementById('currentUserName').textContent = currentUser.username;
+            document.getElementById('currentUserName').textContent = session.username;
         }
 
         // 加载账号列表
         function loadAccounts() {
             const accounts = JSON.parse(localStorage.getItem('ybl_accounts') || '[]');
-            const currentUser = JSON.parse(localStorage.getItem('ybl_current_user') || 'null');
+            const session = JSON.parse(localStorage.getItem('ybl_login_session') || 'null');
             const container = document.getElementById('accountsList');
 
             container.innerHTML = accounts.map((account, index) => {
-                const isCurrentUser = currentUser && account.username === currentUser.username;
+                const isCurrentUser = session && account.username === session.username;
                 const createdDate = new Date(account.createdAt).toLocaleString('zh-CN');
 
                 // 获取角色显示
@@ -439,8 +439,8 @@
         // 退出登录
         function logout() {
             if (confirm('确定要退出登录吗？')) {
-                localStorage.removeItem('ybl_current_user');
-                window.location.href = 'index.html';
+                localStorage.removeItem('ybl_login_session');
+                window.location.href = 'login.html';
             }
         }
 

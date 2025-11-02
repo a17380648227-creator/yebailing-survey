@@ -16,7 +16,7 @@ function createNavbar(currentPage) {
         { name: '问卷编辑', url: 'questionnaire-editor.html', icon: '📝' },
         { name: '数据统计', url: 'data.html', icon: '📊' },
         { name: '顾客反馈', url: 'feedbacks.html', icon: '💬' },
-        { name: '账号管理', url: 'accounts.html', icon: '👥' }
+        { name: '系统配置', url: '网站配置.html', icon: '⚙️' }
     ];
 
     return `

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步工具 - 野百灵餐厅</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; }
+        .section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .info-box {
+            background: #e0e7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .qr-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .url-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            word-break: break-all;
+            font-size: 12px;
+            color: #666;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 数据同步工具</h1>
+        <p class="subtitle">解决手机和电脑数据不同步的问题</p>
+
+        <!-- 当前设备数据 -->
+        <div class="section">
+            <div class="section-title">📊 当前设备数据</div>
+            <div class="stats" id="currentStats">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+
+        <!-- 方案1：生成同步二维码 -->
+        <div class="section">
+            <div class="section-title">📱 方案1：将手机数据同步到电脑</div>
+            <button class="btn btn-primary" onclick="generateSyncQR()">生成同步二维码</button>
+            <div class="qr-container" id="qrContainer" style="display:none;">
+                <div id="qrcode"></div>
+                <div class="url-display" id="syncUrl"></div>
+            </div>
+            <div class="info-box">
+                <strong>📝 使用步骤：</strong><br>
+                1. 在手机上打开问卷页面并提交反馈<br>
+                2. 回到这个页面，点击上方按钮生成二维码<br>
+                3. 用手机扫描二维码<br>
+                4. 手机会自动将数据同步到这台电脑
+            </div>
+        </div>
+
+        <!-- 方案2：手动导入数据 -->
+        <div class="section">
+            <div class="section-title">💾 方案2：从手机复制数据</div>
+            <button class="btn btn-success" onclick="showImportInstructions()">查看导入步骤</button>
+            <div id="importInstructions" style="display:none; margin-top:15px;">
+                <div class="warning-box">
+                    <strong>📱 在手机上操作：</strong><br>
+                    1. 打开问卷页面（任意一个）<br>
+                    2. 按住页面空白处，选择"检查"或"审查元素"<br>
+                    3. 切换到Console（控制台）<br>
+                    4. 复制并粘贴以下代码，按回车：<br>
+                    <code style="background:#000;color:#0f0;padding:10px;display:block;margin:10px 0;border-radius:4px;">
+                    copy(localStorage.getItem('ybl_answers'))
+                    </code>
+                    5. 数据已复制到剪贴板<br>
+                    6. 通过微信/邮件等方式发送给自己<br><br>
+
+                    <strong>💻 在电脑上操作：</strong><br>
+                    <textarea id="importData" placeholder="粘贴从手机复制的数据..." style="width:100%;height:100px;margin:10px 0;padding:10px;border:2px solid #667eea;border-radius:8px;"></textarea>
+                    <button class="btn btn-primary" onclick="importData()">导入数据</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 说明 -->
+        <div class="warning-box">
+            <strong>⚠️ 重要说明：</strong><br>
+            • localStorage是浏览器本地存储，不同设备间无法自动同步<br>
+            • 这是临时解决方案，建议使用专用设备（如平板）让顾客填写<br>
+            • 如需真正的多设备同步，需要搭建后端服务器
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
+    <script>
+        // 显示当前数据统计
+        function showCurrentStats() {
+            const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+            const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+
+            document.getElementById('currentStats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-number">${answers.length}</div>
+                    <div class="stat-label">问卷反馈</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${stores.length}</div>
+                    <div class="stat-label">门店数量</div>
+                </div>
+            `;
+        }
+
+        // 生成同步二维码
+        function generateSyncQR() {
+            const answers = localStorage.getItem('ybl_answers') || '[]';
+            const baseUrl = window.location.origin + window.location.pathname.replace('sync-data.html', 'receive-sync.html');
+
+            // 由于URL长度限制，使用临时存储方案
+            const syncId = Date.now();
+            sessionStorage.setItem(`sync_${syncId}`, answers);
+
+            const syncUrl = `${baseUrl}?id=${syncId}`;
+
+            const container = document.getElementById('qrContainer');
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+
+            new QRCode(qrDiv, {
+                text: syncUrl,
+                width: 200,
+                height: 200
+            });
+
+            document.getElementById('syncUrl').textContent = syncUrl;
+            container.style.display = 'block';
+
+            alert('⚠️ 注意：二维码有效期仅限本次会话\n\n请立即用手机扫描！\n\n扫描后手机上的数据会自动同步到这台电脑。');
+        }
+
+        // 显示导入说明
+        function showImportInstructions() {
+            const div = document.getElementById('importInstructions');
+            div.style.display = div.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 导入数据
+        function importData() {
+            const data = document.getElementById('importData').value.trim();
+            if (!data) {
+                alert('❌ 请先粘贴数据');
+                return;
+            }
+
+            try {
+                const imported = JSON.parse(data);
+                if (!Array.isArray(imported)) {
+                    throw new Error('数据格式不正确');
+                }
+
+                const existing = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+                const merged = [...existing, ...imported];
+
+                localStorage.setItem('ybl_answers', JSON.stringify(merged));
+
+                alert(`✅ 成功导入 ${imported.length} 条反馈！\n\n总计：${merged.length} 条`);
+                showCurrentStats();
+                document.getElementById('importData').value = '';
+            } catch (e) {
+                alert('❌ 导入失败：数据格式不正确\n\n' + e.message);
+            }
+        }
+
+        // 页面加载时显示统计
+        window.addEventListener('load', showCurrentStats);
+    </script>
+</body>
+</html>

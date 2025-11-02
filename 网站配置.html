@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站配置 - 野百灵餐厅</title>
+    <script src="auth.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .main-container { max-width: 900px; margin: 0 auto; padding: 40px 30px; }
+        .page-header { margin-bottom: 40px; text-align: center; }
+        .page-title {
+            font-size: 48px; font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 12px;
+        }
+        .page-subtitle { font-size: 16px; color: rgba(255, 255, 255, 0.7); }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(147, 197, 253, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s;
+            font-family: monospace;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-box {
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .status-configured {
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-not-configured {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .example-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .example-title {
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #fbbf24;
+        }
+
+        .warning-box {
+            background: rgba(251, 191, 36, 0.15);
+            border: 2px solid rgba(251, 191, 36, 0.3);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+        }
+
+        .warning-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <script src="navbar.js"></script>
+    <script>insertNavbar('网站配置.html');</script>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">⚙️ 网站配置</h1>
+            <p class="page-subtitle">配置您的问卷系统访问地址</p>
+        </div>
+
+        <!-- 当前状态 -->
+        <div id="statusBox" class="status-box">
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">
+                <span id="statusIcon">❓</span>
+                <span id="statusText">检查中...</span>
+            </div>
+            <div id="currentUrl" style="font-size: 14px; color: rgba(255,255,255,0.7);"></div>
+        </div>
+
+        <!-- 配置表单 -->
+        <div class="card">
+            <h2 class="card-title">
+                <span>🌐</span>
+                网站URL设置
+            </h2>
+
+            <div class="form-group">
+                <label class="form-label">您的网站地址</label>
+                <input type="url"
+                       id="siteUrlInput"
+                       class="form-input"
+                       placeholder="https://your-username.github.io/your-repo-name">
+                <div class="form-hint">
+                    ⚠️ 这是您的GitHub Pages或其他托管平台的网址,不要包含具体页面文件名
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">📝 正确示例：</div>
+                    ✅ <code>https://username.github.io/yebailing</code><br>
+                    ✅ <code>https://your-domain.com</code><br>
+                    ❌ <code>https://username.github.io/yebailing/survey.html</code> (错误-不要加文件名)<br>
+                    ❌ <code>file:///Users/xxx/Desktop/项目</code> (错误-不能用本地路径)
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="saveConfig()">
+                    💾 保存配置
+                </button>
+                <button class="btn btn-success" onclick="testUrl()">
+                    🧪 测试URL
+                </button>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2 class="card-title">
+                <span>📚</span>
+                配置说明
+            </h2>
+
+            <h3 style="font-size: 18px; margin-bottom: 15px; color: #3b82f6;">
+                1️⃣ 如何获取网站地址？
+            </h3>
+            <div style="margin-bottom: 25px; line-height: 1.8; color: rgba(255,255,255,0.8);">
+                <strong style="color: white;">GitHub Pages:</strong><br>
+                • 进入您的GitHub仓库页面<br>
+                • 点击 Settings → Pages<br>
+                • 找到 "Your site is live at ..." 后面的网址<br>
+                • 复制该网址（不包含具体文件名）
+            </div>
+
+            <h3 style="font-size: 18px; margin-bottom: 15px; color: #10b981;">
+                2️⃣ 为什么需要配置？
+            </h3>
+            <div style="margin-bottom: 25px; line-height: 1.8; color: rgba(255,255,255,0.8);">
+                • 生成的二维码需要包含完整的问卷网址<br>
+                • 顾客扫码后能正确打开问卷页面<br>
+                • 不同用户部署在不同的网址,需要自定义配置
+            </div>
+
+            <h3 style="font-size: 18px; margin-bottom: 15px; color: #f59e0b;">
+                3️⃣ 配置后会影响什么？
+            </h3>
+            <div style="line-height: 1.8; color: rgba(255,255,255,0.8);">
+                • 门店管理页面生成的二维码将使用新网址<br>
+                • 已生成的二维码不受影响(需要重新生成)<br>
+                • 不影响任何数据和其他功能
+            </div>
+        </div>
+
+        <!-- 警告 -->
+        <div class="warning-box">
+            <div class="warning-title">⚠️ 重要提示</div>
+            <div style="line-height: 1.8; color: rgba(255,255,255,0.8);">
+                • 修改URL后,请重新生成所有二维码<br>
+                • 旧的二维码将无法正常访问<br>
+                • 建议在正式使用前完成配置,避免重复生成二维码
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查当前配置状态
+        function checkStatus() {
+            const savedUrl = localStorage.getItem('ybl_site_url');
+            const statusBox = document.getElementById('statusBox');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            const currentUrl = document.getElementById('currentUrl');
+
+            if (savedUrl) {
+                statusBox.className = 'status-box status-configured';
+                statusIcon.textContent = '✅';
+                statusText.textContent = '已配置';
+                currentUrl.textContent = `当前网址: ${savedUrl}`;
+                document.getElementById('siteUrlInput').value = savedUrl;
+            } else {
+                statusBox.className = 'status-box status-not-configured';
+                statusIcon.textContent = '❌';
+                statusText.textContent = '未配置';
+                currentUrl.textContent = '请配置您的网站地址,否则无法正常生成二维码';
+
+                // 尝试自动填充默认值
+                document.getElementById('siteUrlInput').value = 'https://a17380648227-creator.github.io/yebailing-survey';
+            }
+        }
+
+        // 保存配置
+        function saveConfig() {
+            const url = document.getElementById('siteUrlInput').value.trim();
+
+            // 验证URL格式
+            if (!url) {
+                alert('❌ 请输入网站地址');
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('❌ 网址必须以 http:// 或 https:// 开头');
+                return;
+            }
+
+            if (url.includes('.html') || url.includes('.htm')) {
+                alert('❌ 网址不应包含文件名(.html)\n\n正确示例:\nhttps://username.github.io/repo\n\n错误示例:\nhttps://username.github.io/repo/survey.html');
+                return;
+            }
+
+            // 移除末尾的斜杠
+            const cleanUrl = url.replace(/\/$/, '');
+
+            // 保存
+            localStorage.setItem('ybl_site_url', cleanUrl);
+
+            alert('✅ 保存成功！\n\n' + cleanUrl + '\n\n请前往"门店管理"重新生成二维码');
+            checkStatus();
+        }
+
+        // 测试URL
+        function testUrl() {
+            const url = document.getElementById('siteUrlInput').value.trim();
+
+            if (!url) {
+                alert('❌ 请先输入网站地址');
+                return;
+            }
+
+            // 构造测试URL
+            const testSurveyUrl = `${url.replace(/\/$/, '')}/survey.html`;
+
+            if (confirm(`即将在新窗口打开测试页面:\n\n${testSurveyUrl}\n\n如果页面正常显示问卷,说明URL配置正确。\n\n是否继续？`)) {
+                window.open(testSurveyUrl, '_blank');
+            }
+        }
+
+        // 页面加载时检查状态
+        window.addEventListener('load', checkStatus);
+    </script>
+</body>
+</html>

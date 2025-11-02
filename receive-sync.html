@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接收同步数据 - 野百灵餐厅</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .icon { font-size: 80px; margin-bottom: 20px; }
+        h1 { color: #333; margin-bottom: 15px; }
+        .message { color: #666; line-height: 1.6; margin-bottom: 25px; }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .stat-label { color: #666; }
+        .stat-value { color: #667eea; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon" id="statusIcon">⏳</div>
+        <h1 id="statusTitle">正在同步数据...</h1>
+        <div class="message" id="statusMessage">请稍候</div>
+        <div class="stats" id="stats" style="display:none;"></div>
+        <button class="btn" id="actionBtn" style="display:none;">返回管理后台</button>
+    </div>
+
+    <script>
+        function syncData() {
+            const params = new URLSearchParams(window.location.search);
+            const syncId = params.get('id');
+
+            if (!syncId) {
+                showError('缺少同步ID');
+                return;
+            }
+
+            // 获取当前设备的数据
+            const currentAnswers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+
+            // 模拟从服务器获取数据（实际上从手机的localStorage获取）
+            setTimeout(() => {
+                // 由于跨设备限制，这里需要手机主动推送数据
+                // 实际应用中需要后端服务器
+
+                // 显示当前设备数据
+                showStats(currentAnswers);
+            }, 1000);
+        }
+
+        function showStats(answers) {
+            document.getElementById('statusIcon').textContent = '✅';
+            document.getElementById('statusTitle').textContent = '准备接收数据';
+            document.getElementById('statusMessage').textContent = '请在电脑上确认同步';
+
+            const stats = document.getElementById('stats');
+            stats.innerHTML = `
+                <div class="stat-row">
+                    <span class="stat-label">当前设备问卷数：</span>
+                    <span class="stat-value">${answers.length} 条</span>
+                </div>
+            `;
+            stats.style.display = 'block';
+
+            const btn = document.getElementById('actionBtn');
+            btn.textContent = '返回问卷页面';
+            btn.onclick = () => window.location.href = 'survey.html';
+            btn.style.display = 'block';
+        }
+
+        function showError(msg) {
+            document.getElementById('statusIcon').textContent = '❌';
+            document.getElementById('statusTitle').textContent = '同步失败';
+            document.getElementById('statusMessage').textContent = msg;
+        }
+
+        window.addEventListener('load', syncData);
+    </script>
+</body>
+</html>
