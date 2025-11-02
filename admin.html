@@ -66,6 +66,59 @@
             font-size: 24px; font-weight: bold; color: white; margin-bottom: 10px;
         }
         .menu-desc { color: rgba(255, 255, 255, 0.7); font-size: 14px; line-height: 1.6; }
+
+        .brand-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(147, 197, 253, 0.2);
+            margin-bottom: 40px;
+        }
+        .brand-section-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .brand-stat-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.2) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s;
+        }
+        .brand-stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+        }
+        .brand-stat-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fbbf24;
+        }
+        .brand-stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .brand-stat-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .brand-stat-value {
+            font-weight: bold;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -74,11 +127,26 @@
 
     <div class="main-container">
         <div class="page-header">
-            <h1 class="page-title">🍴 野百灵餐厅管理后台</h1>
+            <h1 class="page-title">🍴 多品牌餐厅管理后台</h1>
             <p class="page-subtitle">欢迎回来，开始管理您的问卷系统</p>
         </div>
 
+        <!-- 品牌统计区域 -->
+        <div class="brand-section">
+            <div class="brand-section-title">
+                <span>🏢</span>
+                <span>品牌概览</span>
+            </div>
+            <div id="brandStatsContainer" class="brand-cards-grid"></div>
+        </div>
+
+        <!-- 总体统计 -->
         <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🏢</div>
+                <div class="stat-number" id="totalBrands">0</div>
+                <div class="stat-label">品牌总数</div>
+            </div>
             <div class="stat-card">
                 <div class="stat-icon">🏪</div>
                 <div class="stat-number" id="totalStores">0</div>
@@ -147,9 +215,63 @@
 
     <script>
         window.addEventListener('load', () => {
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
             const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
             const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
 
+            // 渲染品牌统计卡片
+            const brandStatsContainer = document.getElementById('brandStatsContainer');
+            if (brands.length === 0) {
+                brandStatsContainer.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🏢</div>
+                        <div style="font-size: 18px; margin-bottom: 10px;">还没有品牌</div>
+                        <div style="font-size: 14px;">请前往 <a href="stores.html" style="color: #fbbf24; text-decoration: none;">品牌门店管理</a> 添加品牌</div>
+                    </div>
+                `;
+            } else {
+                brandStatsContainer.innerHTML = brands.map(brand => {
+                    // 统计该品牌的门店数
+                    const brandStores = stores.filter(s => s.brandId === brand.id || s.brandName === brand.name);
+                    const storeCount = brandStores.length;
+
+                    // 统计该品牌的桌位数
+                    const tableCount = brandStores.reduce((sum, s) => sum + (s.tables ? s.tables.length : 0), 0);
+
+                    // 统计该品牌的反馈数
+                    const feedbackCount = answers.filter(a => a.brand === brand.name).length;
+
+                    // 统计该品牌的平均评分
+                    const brandAnswers = answers.filter(a => a.brand === brand.name && a.rating);
+                    const brandAvgRating = brandAnswers.length > 0
+                        ? (brandAnswers.reduce((sum, a) => sum + a.rating, 0) / brandAnswers.length).toFixed(1)
+                        : '暂无';
+
+                    return `
+                        <div class="brand-stat-card">
+                            <div class="brand-stat-name">🏢 ${brand.name}</div>
+                            <div class="brand-stat-row">
+                                <span class="brand-stat-label">门店数量</span>
+                                <span class="brand-stat-value">${storeCount} 家</span>
+                            </div>
+                            <div class="brand-stat-row">
+                                <span class="brand-stat-label">桌位总数</span>
+                                <span class="brand-stat-value">${tableCount} 张</span>
+                            </div>
+                            <div class="brand-stat-row">
+                                <span class="brand-stat-label">收到反馈</span>
+                                <span class="brand-stat-value">${feedbackCount} 条</span>
+                            </div>
+                            <div class="brand-stat-row">
+                                <span class="brand-stat-label">平均评分</span>
+                                <span class="brand-stat-value">${brandAvgRating === '暂无' ? brandAvgRating : brandAvgRating + ' ⭐'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 计算总体统计
             let totalTables = 0;
             stores.forEach(store => {
                 totalTables += (store.tables ? store.tables.length : 0);
@@ -164,6 +286,8 @@
             });
             const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0;
 
+            // 更新总体统计数字
+            document.getElementById('totalBrands').textContent = brands.length;
             document.getElementById('totalStores').textContent = stores.length;
             document.getElementById('totalTables').textContent = totalTables;
             document.getElementById('totalAnswers').textContent = answers.length;

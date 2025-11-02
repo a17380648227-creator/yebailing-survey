@@ -263,6 +263,12 @@
         <div class="filter-bar">
             <div class="filter-grid">
                 <div class="filter-group">
+                    <label>品牌筛选</label>
+                    <select class="filter-select" id="brandFilter" onchange="applyFilters()">
+                        <option value="">全部品牌</option>
+                    </select>
+                </div>
+                <div class="filter-group">
                     <label>门店筛选</label>
                     <select class="filter-select" id="storeFilter" onchange="applyFilters()">
                         <option value="">全部门店</option>
@@ -331,8 +337,21 @@
         // 页面加载
         window.addEventListener('load', () => {
             loadFeedbacks();
+            loadBrandOptions();
             loadStoreOptions();
         });
+
+        // 加载品牌选项
+        function loadBrandOptions() {
+            const brands = JSON.parse(localStorage.getItem('ybl_brands') || '[]');
+            const select = document.getElementById('brandFilter');
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand.name;
+                option.textContent = brand.name;
+                select.appendChild(option);
+            });
+        }
 
         // 加载门店选项
         function loadStoreOptions() {
@@ -341,7 +360,8 @@
             stores.forEach(store => {
                 const option = document.createElement('option');
                 option.value = store.name;
-                option.textContent = store.name;
+                // 显示"品牌 - 门店"格式
+                option.textContent = store.brandName ? `${store.brandName} - ${store.name}` : store.name;
                 select.appendChild(option);
             });
         }
@@ -387,12 +407,14 @@
 
         // 应用筛选
         function applyFilters() {
+            const brandFilter = document.getElementById('brandFilter').value;
             const storeFilter = document.getElementById('storeFilter').value;
             const ratingFilter = document.getElementById('ratingFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
             const dateFilter = document.getElementById('dateFilter').value;
 
             filteredFeedbacks = allFeedbacks.filter(feedback => {
+                if (brandFilter && feedback.brand !== brandFilter) return false;
                 if (storeFilter && feedback.store !== storeFilter) return false;
                 if (ratingFilter && feedback.rating !== parseInt(ratingFilter)) return false;
                 if (statusFilter && feedback.status !== statusFilter) return false;
@@ -413,6 +435,7 @@
 
         // 重置筛选
         function resetFilters() {
+            document.getElementById('brandFilter').value = '';
             document.getElementById('storeFilter').value = '';
             document.getElementById('ratingFilter').value = '';
             document.getElementById('statusFilter').value = '';
@@ -470,6 +493,12 @@
 
                     <div class="feedback-header">
                         <div class="feedback-meta">
+                            ${feedback.brand ? `
+                            <div class="meta-item">
+                                <span>🏢</span>
+                                <span style="font-weight: bold; color: #fbbf24;">${feedback.brand}</span>
+                            </div>
+                            ` : ''}
                             <div class="meta-item">
                                 <span>🏪</span>
                                 <span>${feedback.store || '未知门店'}</span>
