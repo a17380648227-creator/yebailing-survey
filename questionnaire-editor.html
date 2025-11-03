@@ -604,14 +604,55 @@
             }
         };
 
+        // 默认问题（从survey.html提取）
+        const defaultQuestions = [
+            {
+                id: 1,
+                type: 'radio',
+                title: '今天您和谁一起来用餐的？',
+                options: ['家人', '朋友', '对象', '独自']
+            },
+            {
+                id: 2,
+                type: 'rating',
+                title: '您对今天的菜品满意吗？',
+                subtitle: '点击星星进行评分',
+                options: []
+            },
+            {
+                id: 3,
+                type: 'checkbox',
+                title: '以下哪些内容您觉得有待改进？',
+                subtitle: '可以选择多个选项',
+                options: ['菜品-口味', '菜品-分量', '菜品-价格', '服务', '环境']
+            },
+            {
+                id: 4,
+                type: 'text',
+                title: '其他建议',
+                subtitle: '选填，分享更多想法...',
+                options: []
+            }
+        ];
+
         // 页面加载
         window.addEventListener('load', () => {
             loadConfig();
+            initializeDefaultQuestions(); // 初始化默认问题
             loadQuestions();
             loadStyleConfig();
             loadTextConfig();
             loadImages();
         });
+
+        // 初始化默认问题
+        function initializeDefaultQuestions() {
+            if (currentConfig.questions.length === 0) {
+                currentConfig.questions = defaultQuestions.map(q => ({...q}));
+                saveConfig();
+                console.log('✅ 已加载默认问题');
+            }
+        }
 
         // 切换标签页
         function switchTab(tabName) {
