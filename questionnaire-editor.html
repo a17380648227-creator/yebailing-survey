@@ -240,6 +240,47 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
+        /* 选项列表样式 */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .option-item input {
+            flex: 1;
+        }
+
+        .option-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid rgba(59, 130, 246, 0.4);
+            border-radius: 8px;
+            font-weight: 600;
+            color: #60a5fa;
+            font-size: 14px;
+        }
+
+        .btn-icon-only {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
         /* 颜色选择器 */
         .color-picker-group {
             display: grid;
@@ -425,8 +466,9 @@
                 </div>
 
                 <div id="optionsContainer" class="form-group">
-                    <label class="form-label">选项内容（每行一个选项）</label>
-                    <textarea id="newQuestionOptions" class="form-textarea" placeholder="例如：&#10;家人&#10;朋友&#10;同事&#10;独自一人"></textarea>
+                    <label class="form-label">选项内容</label>
+                    <div id="optionsList" class="options-list"></div>
+                    <button class="btn btn-success btn-small" onclick="addOptionInput()" style="margin-top: 10px;">➕ 添加选项</button>
                 </div>
 
                 <button class="btn btn-primary" onclick="addQuestion()">✨ 添加问题</button>
@@ -684,6 +726,9 @@
 
         // ========== 问卷内容相关 ==========
 
+        // 临时选项列表
+        let tempOptions = [];
+
         // 根据问题类型更新表单
         function updateQuestionForm() {
             const type = document.getElementById('newQuestionType').value;
@@ -693,14 +738,58 @@
                 optionsContainer.style.display = 'none';
             } else {
                 optionsContainer.style.display = 'block';
+                // 清空并初始化选项列表
+                tempOptions = [];
+                renderOptionInputs();
             }
+        }
+
+        // 渲染选项输入框
+        function renderOptionInputs() {
+            const container = document.getElementById('optionsList');
+
+            if (tempOptions.length === 0) {
+                container.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">点击下方按钮添加选项</div>';
+                return;
+            }
+
+            container.innerHTML = tempOptions.map((option, index) => `
+                <div class="option-item">
+                    <div class="option-number">${index + 1}</div>
+                    <input
+                        type="text"
+                        class="form-input"
+                        value="${option}"
+                        oninput="updateOptionValue(${index}, this.value)"
+                        placeholder="请输入选项内容">
+                    <button class="btn btn-danger btn-small btn-icon-only" onclick="removeOption(${index})" title="删除此选项">
+                        ✕
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 添加选项输入框
+        function addOptionInput() {
+            tempOptions.push('');
+            renderOptionInputs();
+        }
+
+        // 更新选项值
+        function updateOptionValue(index, value) {
+            tempOptions[index] = value;
+        }
+
+        // 删除选项
+        function removeOption(index) {
+            tempOptions.splice(index, 1);
+            renderOptionInputs();
         }
 
         // 添加问题
         function addQuestion() {
             const type = document.getElementById('newQuestionType').value;
             const title = document.getElementById('newQuestionTitle').value.trim();
-            const optionsText = document.getElementById('newQuestionOptions').value.trim();
 
             if (!title) {
                 alert('请输入问题标题');
@@ -715,9 +804,10 @@
             };
 
             if (type !== 'text' && type !== 'rating') {
-                const options = optionsText.split('\n').filter(o => o.trim());
+                // 过滤掉空选项
+                const options = tempOptions.filter(o => o.trim());
                 if (options.length === 0) {
-                    alert('请输入至少一个选项');
+                    alert('请至少添加一个选项');
                     return;
                 }
                 question.options = options;
@@ -729,7 +819,8 @@
 
             // 清空表单
             document.getElementById('newQuestionTitle').value = '';
-            document.getElementById('newQuestionOptions').value = '';
+            tempOptions = [];
+            renderOptionInputs();
 
             showToast('✅ 问题添加成功！');
         }
@@ -781,14 +872,153 @@
         // 编辑问题
         function editQuestion(index) {
             const question = currentConfig.questions[index];
-            const newTitle = prompt('修改问题标题:', question.title);
 
-            if (newTitle && newTitle.trim()) {
-                currentConfig.questions[index].title = newTitle.trim();
-                saveConfig();
-                loadQuestions();
-                showToast('✅ 问题已更新！');
+            // 创建编辑对话框
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                border-radius: 24px;
+                padding: 40px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            `;
+
+            let optionsHtml = '';
+            if (question.type !== 'text' && question.type !== 'rating') {
+                optionsHtml = `
+                    <div style="margin-top: 20px;">
+                        <label style="display: block; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 10px;">选项列表</label>
+                        <div id="editOptionsList" style="display: flex; flex-direction: column; gap: 10px;">
+                            ${question.options.map((opt, i) => `
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div style="width: 32px; height: 32px; background: rgba(59, 130, 246, 0.2); border: 2px solid rgba(59, 130, 246, 0.4); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #60a5fa; font-size: 14px;">${i + 1}</div>
+                                    <input type="text" value="${opt}" class="edit-option-input" data-index="${i}" style="flex: 1; padding: 14px 18px; background: rgba(255,255,255,0.1); border: 2px solid rgba(147,197,253,0.3); border-radius: 12px; color: white; font-size: 15px;">
+                                    <button onclick="removeEditOption(${i})" style="width: 36px; height: 36px; padding: 0; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">✕</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button onclick="addEditOption()" style="margin-top: 10px; padding: 8px 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">➕ 添加选项</button>
+                    </div>
+                `;
             }
+
+            modalContent.innerHTML = `
+                <h2 style="font-size: 24px; font-weight: bold; color: white; margin-bottom: 25px;">编辑问题</h2>
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 10px;">问题标题</label>
+                    <input type="text" id="editQuestionTitle" value="${question.title}" style="width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.1); border: 2px solid rgba(147,197,253,0.3); border-radius: 12px; color: white; font-size: 15px;">
+                </div>
+                ${optionsHtml}
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button onclick="saveEditQuestion(${index})" style="flex: 1; padding: 14px 28px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer;">💾 保存</button>
+                    <button onclick="closeEditModal()" style="flex: 1; padding: 14px 28px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer;">取消</button>
+                </div>
+            `;
+
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            modal.id = 'editModal';
+
+            // 点击背景关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeEditModal();
+                }
+            });
+        }
+
+        // 保存编辑的问题
+        function saveEditQuestion(index) {
+            const newTitle = document.getElementById('editQuestionTitle').value.trim();
+            if (!newTitle) {
+                alert('请输入问题标题');
+                return;
+            }
+
+            currentConfig.questions[index].title = newTitle;
+
+            // 如果有选项，更新选项
+            const question = currentConfig.questions[index];
+            if (question.type !== 'text' && question.type !== 'rating') {
+                const optionInputs = document.querySelectorAll('.edit-option-input');
+                const newOptions = Array.from(optionInputs)
+                    .map(input => input.value.trim())
+                    .filter(v => v);
+
+                if (newOptions.length === 0) {
+                    alert('请至少保留一个选项');
+                    return;
+                }
+
+                currentConfig.questions[index].options = newOptions;
+            }
+
+            saveConfig();
+            loadQuestions();
+            closeEditModal();
+            showToast('✅ 问题已更新！');
+        }
+
+        // 关闭编辑对话框
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // 添加编辑选项
+        function addEditOption() {
+            const container = document.getElementById('editOptionsList');
+            const currentCount = container.children.length;
+            const newOption = document.createElement('div');
+            newOption.style.cssText = 'display: flex; gap: 10px; align-items: center;';
+            newOption.innerHTML = `
+                <div style="width: 32px; height: 32px; background: rgba(59, 130, 246, 0.2); border: 2px solid rgba(59, 130, 246, 0.4); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #60a5fa; font-size: 14px;">${currentCount + 1}</div>
+                <input type="text" value="" class="edit-option-input" data-index="${currentCount}" style="flex: 1; padding: 14px 18px; background: rgba(255,255,255,0.1); border: 2px solid rgba(147,197,253,0.3); border-radius: 12px; color: white; font-size: 15px;" placeholder="请输入选项内容">
+                <button onclick="this.parentElement.remove(); updateEditOptionNumbers()" style="width: 36px; height: 36px; padding: 0; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">✕</button>
+            `;
+            container.appendChild(newOption);
+        }
+
+        // 删除编辑选项
+        function removeEditOption(index) {
+            const container = document.getElementById('editOptionsList');
+            const items = container.children;
+            if (items.length <= 1) {
+                alert('至少保留一个选项');
+                return;
+            }
+            items[index].remove();
+            updateEditOptionNumbers();
+        }
+
+        // 更新选项编号
+        function updateEditOptionNumbers() {
+            const container = document.getElementById('editOptionsList');
+            Array.from(container.children).forEach((item, index) => {
+                const numberDiv = item.querySelector('div');
+                if (numberDiv) {
+                    numberDiv.textContent = index + 1;
+                }
+            });
         }
 
         // 删除问题
