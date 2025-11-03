@@ -1061,38 +1061,44 @@
             if (!surveyConfig) return;
 
             const style = surveyConfig.style;
+            const text = surveyConfig.text;
 
-            // 应用背景渐变色
-            if (style.bgColor1 && style.bgColor2) {
-                document.body.style.background = `linear-gradient(135deg, ${style.bgColor1} 0%, ${style.bgColor2} 100%)`;
+            // 应用背景色
+            if (style && style.backgroundColor) {
+                document.body.style.background = style.backgroundColor;
             }
 
             // 应用品牌名称
-            if (style.brandName) {
+            if (text && text.brandName) {
                 const brandElements = document.querySelectorAll('.brand-name');
-                brandElements.forEach(el => el.textContent = style.brandName);
-
-                // 更新页面标题
-                document.title = `${style.brandName} - 用餐反馈`;
+                brandElements.forEach(el => el.textContent = text.brandName);
+                document.title = `${text.brandName} - ${text.surveyTitle || '用餐反馈'}`;
             }
 
-            // 应用完成页面文案
-            if (style.completeTitle) {
-                const completeTitle = document.querySelector('.complete-title');
-                if (completeTitle) {
-                    completeTitle.textContent = style.completeTitle;
-                    console.log('✅ 已应用完成页面标题:', style.completeTitle);
-                }
-            }
-            if (style.completeText) {
-                const completeText = document.querySelector('.complete-text');
-                if (completeText) {
-                    completeText.textContent = style.completeText;
-                    console.log('✅ 已应用完成页面文案:', style.completeText);
-                }
+            // 应用按钮颜色
+            if (style && style.buttonColor) {
+                const styleTag = document.createElement('style');
+                styleTag.innerHTML = `
+                    .next-btn, .prev-btn {
+                        background: ${style.buttonColor} !important;
+                    }
+                `;
+                document.head.appendChild(styleTag);
             }
 
-            console.log('样式配置已应用');
+            // 应用主色调
+            if (style && style.primaryColor) {
+                const styleTag = document.createElement('style');
+                styleTag.innerHTML = `
+                    .option.selected {
+                        background: ${style.primaryColor}33 !important;
+                        border-color: ${style.primaryColor} !important;
+                    }
+                `;
+                document.head.appendChild(styleTag);
+            }
+
+            console.log('✅ 样式配置已应用');
         }
 
         // 应用问题内容配置
@@ -1151,14 +1157,72 @@
             console.log('问题内容配置已应用');
         }
 
+        // 应用轮播图配置
+        function applyCarouselImages() {
+            if (!surveyConfig || !surveyConfig.images) return;
+
+            const carouselImages = surveyConfig.images.carousel;
+            if (!carouselImages || carouselImages.length === 0) {
+                console.log('⚠️ 未找到轮播图配置，使用默认图片');
+                return;
+            }
+
+            const carouselContainer = document.getElementById('carousel');
+            if (!carouselContainer) return;
+
+            // 清空现有轮播图
+            carouselContainer.innerHTML = '';
+
+            // 创建新的轮播图
+            carouselImages.forEach((imageData, index) => {
+                const slide = document.createElement('div');
+                slide.className = index === 0 ? 'carousel-slide active' : 'carousel-slide';
+                slide.style.backgroundImage = `url('${imageData}')`;
+
+                slide.innerHTML = `
+                    <div class="carousel-overlay">
+                        <div class="carousel-header">
+                            <div class="brand-name">${surveyConfig.text?.brandName || '野百灵'}</div>
+                        </div>
+                        <div class="carousel-dots">
+                            ${carouselImages.map((_, i) => `<div class="dot ${i === index ? 'active' : ''}"></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+
+                carouselContainer.appendChild(slide);
+            });
+
+            console.log(`✅ 已加载 ${carouselImages.length} 张轮播图`);
+        }
+
+        // 应用背景图配置
+        function applyBackgroundImage() {
+            if (!surveyConfig || !surveyConfig.images) return;
+
+            const backgroundImage = surveyConfig.images.background;
+            if (backgroundImage) {
+                document.body.style.backgroundImage = `url('${backgroundImage}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                console.log('✅ 已应用背景图');
+            }
+        }
+
         // 显示门店和桌号信息
         window.addEventListener('load', () => {
             // 加载并应用问卷配置
             const hasConfig = loadSurveyConfig();
             if (hasConfig) {
-                applyConfigStyles();
-                applyQuestionContent();
+                applyCarouselImages();  // 先应用轮播图
+                applyBackgroundImage(); // 再应用背景图
+                applyConfigStyles();    // 然后应用样式
+                applyQuestionContent(); // 最后应用问题内容
             }
+
+            // 加载背景图片
+            loadBackgroundImages();
 
             const storeInfoTag = document.getElementById('storeInfoTag');
             if (storeInfo.store !== '未知门店' && storeInfo.table !== '未知桌号') {

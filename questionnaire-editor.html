@@ -713,7 +713,7 @@
 
         // 加载配置
         function loadConfig() {
-            const saved = localStorage.getItem('ybl_survey_config');
+            const saved = localStorage.getItem('ybl_questionnaire_config');
             if (saved) {
                 currentConfig = { ...currentConfig, ...JSON.parse(saved) };
             }
@@ -721,7 +721,8 @@
 
         // 保存配置
         function saveConfig() {
-            localStorage.setItem('ybl_survey_config', JSON.stringify(currentConfig));
+            localStorage.setItem('ybl_questionnaire_config', JSON.stringify(currentConfig));
+            console.log('💾 配置已保存到 localStorage');
         }
 
         // ========== 问卷内容相关 ==========
