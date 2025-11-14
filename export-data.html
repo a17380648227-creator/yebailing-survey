@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据导出工具 - 野百灵问卷系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .section h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        .data-preview {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 13px;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .stat-value {
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 数据导出工具</h1>
+        <p class="subtitle">将当前浏览器的所有数据导出为 JSON 文件，用于迁移到新主机</p>
+
+        <div class="section">
+            <h2>📊 当前数据统计</h2>
+            <div id="stats">
+                <div class="stat">
+                    <span class="stat-label">门店数量：</span>
+                    <span class="stat-value" id="storeCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">问卷反馈数量：</span>
+                    <span class="stat-value" id="answerCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">账户数量：</span>
+                    <span class="stat-value" id="accountCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📄 数据预览</h2>
+            <div class="info">
+                ✅ 将导出以下数据：门店信息、问卷反馈、账户信息
+            </div>
+            <div class="data-preview" id="dataPreview">
+                加载中...
+            </div>
+        </div>
+
+        <button class="btn" id="exportBtn" onclick="exportData()">
+            📥 下载数据文件 (data-backup.json)
+        </button>
+
+        <div class="success" id="successMsg">
+            ✅ 数据导出成功！请保存好 data-backup.json 文件
+        </div>
+
+        <div class="error" id="errorMsg">
+            ❌ 导出失败，请检查浏览器控制台
+        </div>
+
+        <div class="section" style="margin-top: 30px;">
+            <h2>📝 使用说明</h2>
+            <div style="font-size: 14px; color: #666; line-height: 1.8;">
+                <p><strong>1. 点击上面的按钮导出数据</strong></p>
+                <p><strong>2. 保存 data-backup.json 文件到本地</strong></p>
+                <p><strong>3. 在新主机上打开 import-data.html 页面</strong></p>
+                <p><strong>4. 上传 data-backup.json 文件完成迁移</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时显示数据统计
+        window.onload = function() {
+            loadStats();
+            previewData();
+        };
+
+        function loadStats() {
+            try {
+                // 读取 localStorage 数据
+                const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+                const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+                const accounts = JSON.parse(localStorage.getItem('ybl_accounts') || '[]');
+
+                // 显示统计
+                document.getElementById('storeCount').textContent = stores.length;
+                document.getElementById('answerCount').textContent = answers.length;
+                document.getElementById('accountCount').textContent = accounts.length;
+
+                // 如果没有数据，禁用导出按钮
+                if (stores.length === 0 && answers.length === 0 && accounts.length === 0) {
+                    document.getElementById('exportBtn').disabled = true;
+                    document.getElementById('exportBtn').textContent = '⚠️ 没有可导出的数据';
+                }
+            } catch (error) {
+                console.error('读取数据失败:', error);
+                showError('读取数据失败: ' + error.message);
+            }
+        }
+
+        function previewData() {
+            try {
+                const stores = JSON.parse(localStorage.getItem('ybl_stores') || '[]');
+                const answers = JSON.parse(localStorage.getItem('ybl_answers') || '[]');
+                const accounts = JSON.parse(localStorage.getItem('ybl_accounts') || '[]');
+
+                const preview = {
+                    stores: stores.slice(0, 2),  // 只显示前2条
+                    answers: answers.slice(0, 2),
+                    accounts: accounts.slice(0, 2)
+                };
+
+                document.getElementById('dataPreview').textContent =
+                    JSON.stringify(preview, null, 2);
+            } catch (error) {
+                document.getElementById('dataPreview').textContent =
+                    '预览失败: ' + error.message;
+            }
+        }
+
+        function exportData() {
+            try {
+                // 收集所有数据
+                const data = {
+                    version: '2.0',
+                    exportDate: new Date().toISOString(),
+                    data: {
+                        stores: JSON.parse(localStorage.getItem('ybl_stores') || '[]'),
+                        answers: JSON.parse(localStorage.getItem('ybl_answers') || '[]'),
+                        accounts: JSON.parse(localStorage.getItem('ybl_accounts') || '[]'),
+                        // 导出其他可能的配置项
+                        currentBrand: localStorage.getItem('currentBrand') || null,
+                        adminPassword: localStorage.getItem('adminPassword') || null
+                    }
+                };
+
+                // 转换为 JSON 字符串
+                const jsonStr = JSON.stringify(data, null, 2);
+
+                // 创建 Blob 对象
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+
+                // 创建下载链接
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `data-backup-${Date.now()}.json`;
+
+                // 触发下载
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // 释放 URL 对象
+                URL.revokeObjectURL(url);
+
+                // 显示成功消息
+                showSuccess();
+            } catch (error) {
+                console.error('导出失败:', error);
+                showError('导出失败: ' + error.message);
+            }
+        }
+
+        function showSuccess() {
+            const successMsg = document.getElementById('successMsg');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = '❌ ' + message;
+            errorMsg.style.display = 'block';
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
